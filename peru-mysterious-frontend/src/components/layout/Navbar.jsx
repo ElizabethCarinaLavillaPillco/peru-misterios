@@ -1,5 +1,7 @@
-import { useState, useEffect, useRef } from "react";
+// src/components/layout/Navbar.jsx
+
 import { Link, useLocation } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
 import {
   IoEarth,
   IoCartOutline,
@@ -9,96 +11,142 @@ import {
   IoChevronDown,
   IoSunnyOutline,
 } from "react-icons/io5";
+import useAuthStore from "@/store/authStore";
 
-import InviteFriendsModal from "@/components/invite/InviteFriendsModal";
-import { authAPI } from "@/lib/api";
-
-// Links principales
+/* Links principales */
 const navLinks = [
   {
     name: "Destinos",
     subLinks: [
-      { name: "Cusco", to: "/destinos" },
-      { name: "Arequipa", to: "/destinos" },
-      { name: "Puno", to: "/destinos" },
-      { name: "Ica", to: "/destinos" },
-      { name: "Huaraz", to: "/destinos" },
-      { name: "Manu", to: "/destinos" },
+      { name: "Cusco", href: "/destinos/cusco" },
+      { name: "Arequipa", href: "/destinos/arequipa" },
+      { name: "Puno", href: "/destinos/puno" },
+      { name: "Ica", href: "/destinos/ica" },
+      { name: "Huaraz", href: "/destinos/huaraz" },
+      { name: "Manu", href: "/destinos/manu" },
     ],
   },
-  { name: "Paquetes", to: "/paquetes" },
+  { name: "Paquetes", href: "/tours?category=paquetes-completos" },
   {
     name: "Hoteles",
-    to: "/hoteles",
+    href: "/hoteles",
     subLinks: [
-      { name: "Cusco", to: "/hoteles/cusco" },
-      { name: "Lima", to: "/hoteles/lima" },
+      { name: "Cusco", href: "/hoteles/cusco" },
+      { name: "Lima", href: "/hoteles/lima" },
     ],
   },
   {
     name: "Actividades",
-    to: "/actividades",
-    subLinks: [{ name: "Blog", to: "/actividades/blog" }],
+    href: "/actividades",
+    subLinks: [{ name: "Blog", href: "/blog" }],
   },
 ];
 
 const secondaryNavLinks = [
-  { name: "Nosotros", to: "/nosotros" },
-  { name: "Contacto", to: "/contacto" },
-  { name: "Ayuda", to: "/ayuda" },
+  { name: "Nosotros", href: "/nosotros" },
+  { name: "Contacto", href: "/contacto" },
+  { name: "Ayuda", href: "/ayuda" },
 ];
 
-// Desktop dropdown
+/* Dropdown (desktop) – controlado por click */
 function DesktopDropdown({ link, isOpen, onToggle, onClose, idx }) {
+  const btnId = `menubtn-${idx}`;
+  const menuId = `menu-${idx}`;
+
   return (
     <li className="relative">
       <button
+        id={btnId}
+        aria-controls={menuId}
+        aria-expanded={isOpen}
+        aria-haspopup="menu"
         onClick={onToggle}
-        className="group flex items-center gap-1 text-[15px] font-medium text-white/90 hover:text-pm-gold transition"
+        className="group relative flex items-center gap-1 text-[15px] font-medium text-white/90 transition-colors hover:text-pm-gold focus:outline-none focus-visible:ring-2 focus-visible:ring-pm-gold/60 rounded"
       >
         {link.name}
         <IoChevronDown
-          className={`transition-transform ${isOpen ? "rotate-180" : ""}`}
+          className={`ml-1 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+          size={16}
+        />
+        <span
+          className={`pointer-events-none absolute -bottom-2 left-0 h-[2px] bg-gradient-to-r from-pm-gold/0 via-pm-gold to-pm-gold/0 transition-all duration-300 ${
+            isOpen ? "w-full opacity-100" : "w-0 opacity-0"
+          }`}
         />
       </button>
 
-      {isOpen && link.subLinks && (
-        <div className="absolute left-0 mt-4 w-60 rounded-2xl bg-white text-pm-black shadow-xl p-2">
-          {link.subLinks.map((s) => (
-            <Link
-              key={s.name}
-              to={s.to}
-              onClick={onClose}
-              className="block px-4 py-2 text-[15px] text-neutral-700 hover:text-pm-gold transition"
-            >
-              {s.name}
-            </Link>
-          ))}
+      {link.subLinks && isOpen && (
+        <div
+          id={menuId}
+          role="menu"
+          aria-labelledby={btnId}
+          className="absolute left-0 mt-4 w-60 rounded-2xl border border-white/10 bg-white/95 text-pm-black shadow-xl backdrop-blur-md ring-1 ring-black/5 overflow-hidden animate-in fade-in-50 slide-in-from-top-2"
+        >
+          <div className="py-2">
+            {link.href && (
+              <Link
+                to={link.href}
+                role="menuitem"
+                onClick={onClose}
+                className="block px-4 py-2 text-[15px] font-medium text-neutral-700 hover:bg-black/5 hover:text-pm-gold transition-colors"
+              >
+                Ver todas {link.name.toLowerCase()}
+              </Link>
+            )}
+
+            {link.subLinks.map((s) => (
+              <Link
+                key={s.name}
+                to={s.href}
+                role="menuitem"
+                onClick={onClose}
+                className="block px-4 py-2 text-[15px] font-bold text-pm-gold hover:text-pm-gold-dark transition-colors hover:bg-black/5"
+              >
+                {s.name}
+              </Link>
+            ))}
+          </div>
         </div>
       )}
     </li>
   );
 }
 
-// Item móvil
-function MobileNavItem({ item }) {
+/* Item móvil (con posible submenú) */
+function MobileNavItem({ item, onClose }) {
   const [open, setOpen] = useState(false);
 
   if (item.subLinks) {
     return (
       <div className="border-b border-white/10">
         <button
-          onClick={() => setOpen(!open)}
-          className="flex w-full justify-between py-4 text-base text-white"
+          onClick={() => setOpen((v) => !v)}
+          className="flex w-full items-center justify-between py-4 text-base text-white/90 transition-colors hover:text-white"
+          aria-expanded={open}
         >
-          {item.name}
-          <IoChevronDown className={`${open ? "rotate-180" : ""}`} />
+          <span>{item.name}</span>
+          <IoChevronDown className={`transition-transform ${open ? "rotate-180" : ""}`} />
         </button>
 
         {open && (
           <div className="pl-3 pb-3 flex flex-col gap-2">
+            {item.href && (
+              <Link
+                to={item.href}
+                onClick={onClose}
+                className="text-sm font-medium text-white/90 transition-colors hover:text-pm-gold"
+              >
+                Ver todas {item.name.toLowerCase()}
+              </Link>
+            )}
+
             {item.subLinks.map((s) => (
-              <Link key={s.name} to={s.to} className="text-white/70 hover:text-pm-gold">
+              <Link
+                key={s.name}
+                to={s.href}
+                onClick={onClose}
+                className="text-sm text-white/70 transition-colors hover:text-pm-gold"
+              >
                 {s.name}
               </Link>
             ))}
@@ -110,42 +158,82 @@ function MobileNavItem({ item }) {
 
   return (
     <Link
-      to={item.to || "#"}
-      className="block py-4 text-base text-white border-b border-white/10"
+      to={item.href || "#"}
+      onClick={onClose}
+      className="block py-4 text-base text-white/80 transition-colors hover:text-pm-gold border-b border-white/10"
     >
       {item.name}
     </Link>
   );
 }
 
-// NAVBAR
+/* NAVBAR */
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState(null);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
-  const [inviteOpen, setInviteOpen] = useState(false);
-  const { pathname } = useLocation();
+  const shellRef = useRef(null);
+  const firstMobileBtnRef = useRef(null);
+  
+  const location = useLocation();
+  const { isAuthenticated, user } = useAuthStore();
 
-  const { isAuthenticated, user, logout } = useAuthStore();
+  useEffect(() => {
+    const onDocClick = (e) => {
+      if (shellRef.current && !shellRef.current.contains(e.target)) {
+        setOpenMenu(null);
+        setIsMoreOpen(false);
+      }
+    };
+    const onEsc = (e) => {
+      if (e.key === "Escape") {
+        setOpenMenu(null);
+        setIsMoreOpen(false);
+        setIsMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onDocClick);
+    document.addEventListener("keydown", onEsc);
+    return () => {
+      document.removeEventListener("mousedown", onDocClick);
+      document.removeEventListener("keydown", onEsc);
+    };
+  }, []);
 
-
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = isMenuOpen ? "hidden" : prev || "";
+    if (isMenuOpen) setTimeout(() => firstMobileBtnRef.current?.focus(), 0);
+    return () => (document.body.style.overflow = prev || "");
+  }, [isMenuOpen]);
 
   return (
     <>
       <header className="sticky top-0 z-50">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 pt-4">
-          <div className="flex justify-between items-center rounded-full bg-pm-black/70 border border-white/10 px-4 h-16">
-
-            {/* MENU MOBILE */}
+        <div
+          ref={shellRef}
+          className="relative mx-auto max-w-7xl px-4 sm:px-6 pt-4"
+          aria-label="Barra de navegación principal"
+        >
+          <div
+            className="
+              relative flex items-center justify-between
+              rounded-full border border-white/10
+              bg-pm-black/70 backdrop-blur-xl
+              shadow-[0_10px_30px_-10px_rgba(0,0,0,0.6)]
+              px-4 sm:px-6 h-16
+            "
+          >
             <button
               onClick={() => setIsMenuOpen(true)}
-              className="md:hidden text-white"
+              className="md:hidden text-white icon-outline transition-colors hover:text-pm-gold"
+              aria-label="Abrir menú"
+              ref={firstMobileBtnRef}
             >
               <IoMenu size={26} />
             </button>
 
-            {/* LINKS DESKTOP */}
-            <ul className="hidden md:flex items-center gap-7">
+            <ul className="hidden md:flex items-center gap-7" role="menubar">
               {navLinks.map((link, i) =>
                 link.subLinks ? (
                   <DesktopDropdown
@@ -154,99 +242,198 @@ export default function Navbar() {
                     idx={i}
                     isOpen={openMenu === link.name}
                     onToggle={() =>
-                      setOpenMenu(openMenu === link.name ? null : link.name)
+                      setOpenMenu((v) => (v === link.name ? null : link.name))
                     }
                     onClose={() => setOpenMenu(null)}
                   />
                 ) : (
                   <li key={link.name}>
-                    <Link
-                      to={link.to}
-                      className="text-white/90 hover:text-pm-gold"
-                    >
-                      {link.name}
-                    </Link>
+                    {(() => {
+                      const isActive =
+                        typeof link.href === "string" &&
+                        (location.pathname === link.href || 
+                         location.pathname.startsWith(link.href + "/"));
+
+                      return (
+                        <Link
+                          to={link.href ?? "#"}
+                          aria-current={isActive ? "page" : undefined}
+                          className="
+                            text-[15px] font-medium transition-colors focus:outline-none
+                            focus-visible:ring-2 focus-visible:ring-pm-gold/60 rounded
+                            text-white/90 hover:text-pm-gold
+                            [&[aria-current='page']]:!text-white
+                          "
+                        >
+                          {link.name}
+                        </Link>
+                      );
+                    })()}
                   </li>
                 )
               )}
             </ul>
 
-            {/* ICONOS DERECHA */}
-            <div className="hidden md:flex items-center gap-3">
-              {/* INVITE */}
-              <button
-                onClick={() => setInviteOpen(true)}
-                className="px-4 py-1.5 rounded-full border border-pm-gold text-pm-gold hover:bg-pm-gold hover:text-black"
+            <div className="hidden md:flex items-center gap-2">
+              <Link
+                to="/cart"
+                title="Carrito"
+                className="p-2 rounded-full transition-colors hover:bg-white/10 text-white icon-outline relative"
               >
-                Invita a tus amigos
+                <IoCartOutline size={22} />
+              </Link>
+              
+              <button 
+                title="Cambiar idioma" 
+                className="p-2 rounded-full transition-colors hover:bg-white/10 text-white icon-outline"
+              >
+                <IoEarth size={20} />
               </button>
-
-              {/* NOT LOGGED → LOGIN Y REGISTER */}
-              {!isAuthenticated && (
-                <>
-                  <Link to="/login" className="text-white hover:text-pm-gold">
-                    Login
-                  </Link>
-                  <Link
-                    to="/register"
-                    className="text-white hover:text-pm-gold"
-                  >
-                    Registro
-                  </Link>
-                </>
-              )}
-
-              {/* LOGGED → MI CUENTA */}
-              {isAuthenticated && (
-                <Link to="/mi-cuenta">
-                  <IoPersonCircleOutline size={22} className="text-white hover:text-pm-gold" />
+              
+              <button 
+                title="Modo Claro/Oscuro" 
+                className="p-2 rounded-full transition-colors hover:bg-white/10 text-white icon-outline"
+              >
+                <IoSunnyOutline size={20} />
+              </button>
+              
+              {isAuthenticated ? (
+                <Link 
+                  to={user?.role === 'admin' ? '/admin' : '/mi-cuenta'} 
+                  title="Mi Cuenta" 
+                  className="p-2 rounded-full transition-colors hover:bg-white/10 text-white icon-outline"
+                >
+                  <IoPersonCircleOutline size={22} />
+                </Link>
+              ) : (
+                <Link 
+                  to="/login" 
+                  title="Login" 
+                  className="p-2 rounded-full transition-colors hover:bg-white/10 text-white icon-outline"
+                >
+                  <IoPersonCircleOutline size={22} />
                 </Link>
               )}
+              
+              <div className="relative">
+                <button
+                  title="Más opciones"
+                  onClick={() => setIsMoreOpen((v) => !v)}
+                  className="p-2 rounded-full transition-colors hover:bg-white/10 text-white icon-outline"
+                >
+                  <IoMenu size={22} />
+                </button>
+                {isMoreOpen && (
+                  <div className="absolute right-0 mt-3 w-48 rounded-2xl border border-white/10 bg-white/95 text-pm-black shadow-xl ring-1 ring-black/5 overflow-hidden">
+                    <div className="py-1">
+                      {secondaryNavLinks.map((s) => (
+                        <Link
+                          key={s.name}
+                          to={s.href}
+                          onClick={() => setIsMoreOpen(false)}
+                          className="block px-4 py-2 text-sm transition-colors hover:bg-black/5 hover:text-pm-gold"
+                        >
+                          {s.name}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
+
+            <Link to="/" className="md:hidden">
+              <img
+                src="/logo-peru-mysterious-blanco.png"
+                alt="Perú Mysterious"
+                className="h-8 w-auto"
+              />
+            </Link>
           </div>
+
+          {/* Medallón del logo */}
+          <Link
+            to="/"
+            aria-label="Ir al inicio"
+            className="
+              group
+              absolute left-1/2 top-1
+              -translate-x-1/2
+              hidden md:inline-flex
+              items-center justify-center
+              w-25 h-25 rounded-full
+              bg-pm-black border border-blue/10
+              shadow-[0_12px_40px_-12px_rgba(0,0,0,0.8)]
+              overflow-hidden z-[1]
+            "
+          >
+            <span className="pointer-events-none absolute inset-0 rounded-full">
+              <span
+                className="absolute inset-0 rounded-full opacity-20 blur-[2px]"
+                style={{
+                  background:
+                    "conic-gradient(from 90deg, rgba(219,164,0,0.0), rgba(219,164,0,0.6), rgba(219,164,0,0.0))",
+                }}
+              />
+            </span>
+            <span className="absolute inset-[10px] rounded-full bg-gradient-to-b from-white/0 to-white/0 backdrop-blur" />
+            <img
+              src="/logo-peru-mysterious-blanco.png"
+              alt="Perú Mysterious"
+              className="relative z-10 object-contain p-3 w-[120px] h-[120px] transition-transform duration-300 group-hover:scale-[1.03]"
+            />
+          </Link>
         </div>
       </header>
 
       {/* Drawer móvil */}
       <aside
-        className={`md:hidden fixed top-0 left-0 h-full w-[92%] max-w-sm bg-pm-black text-white p-6 transition-transform ${
-          isMenuOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`md:hidden fixed top-0 left-0 z-50 h-full w-[92%] max-w-sm
+          bg-gradient-to-b from-pm-black to-pm-black/95 text-white
+          p-6 transition-transform duration-300 ease-in-out
+          ${isMenuOpen ? "translate-x-0" : "-translate-x-full"}
+          rounded-r-3xl border-r border-white/10`}
       >
-        <div className="flex justify-between items-center">
-          <img src="/logo-peru-mysterious-blanco.png" width={140} />
-
-          <button onClick={() => setIsMenuOpen(false)}>
+        <div className="flex items-center justify-between">
+          <Link to="/" onClick={() => setIsMenuOpen(false)}>
+            <img
+              src="/logo-peru-mysterious-blanco.png"
+              alt="Perú Mysterious"
+              className="h-9 w-auto object-contain"
+            />
+          </Link>
+          <button
+            onClick={() => setIsMenuOpen(false)}
+            aria-label="Cerrar menú"
+            className="p-2 rounded-full transition-colors hover:bg-white/10 text-white icon-outline"
+          >
             <IoClose size={24} />
           </button>
         </div>
 
         <nav className="mt-6">
           {navLinks.map((item) => (
-            <MobileNavItem key={item.name} item={item} />
+            <MobileNavItem 
+              key={item.name} 
+              item={item} 
+              onClose={() => setIsMenuOpen(false)}
+            />
           ))}
-
-          {/* Login / Register mobile */}
-          {!isAuthenticated && (
-            <>
-              <Link to="/login" className="block py-4 text-white">
-                Login
-              </Link>
-              <Link to="/register" className="block py-4 text-white">
-                Registro
-              </Link>
-            </>
-          )}
-
-          {isAuthenticated && (
-            <Link to="/mi-cuenta" className="block py-4 text-white">
-              Mi Cuenta
-            </Link>
-          )}
         </nav>
-      </aside>
 
-      <InviteFriendsModal open={inviteOpen} onClose={() => setInviteOpen(false)} />
+        <div className="mt-4">
+          {secondaryNavLinks.map((s) => (
+            <Link
+              key={s.name}
+              to={s.href}
+              onClick={() => setIsMenuOpen(false)}
+              className="block py-3 text-sm text-white/80 transition-colors hover:text-pm-gold border-b border-white/10"
+            >
+              {s.name}
+            </Link>
+          ))}
+        </div>
+      </aside>
     </>
   );
 }

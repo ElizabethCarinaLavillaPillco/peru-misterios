@@ -1,58 +1,181 @@
+// src/components/layout/Footer.jsx
+
 import { Link } from "react-router-dom";
+import {
+  IoTimeOutline,
+  IoCallOutline,
+  IoMailOutline,
+  IoLocationOutline,
+  IoLogoFacebook,
+  IoLogoTiktok,
+  IoLogoYoutube,
+  IoLogoInstagram,
+} from "react-icons/io5";
 
 export default function Footer() {
+  const navLinks = [
+    { name: "Destinos", href: "/tours" },
+    { name: "Hoteles", href: "/hoteles" },
+    { name: "Contacto", href: "/contacto" },
+    { name: "Nosotros", href: "/nosotros" },
+    { name: "Blog", href: "/blog" },
+  ];
+
   return (
-    <footer className="bg-pm-black text-gray-300 py-10 mt-20">
-      <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-10">
+    <footer className="bg-pm-black text-white/85 font-metropolis">
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        {/* Grid principal */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {/* Col 1: Logo + medios de pago */}
+          <div className="flex flex-col">
+            <img
+              src="/logo-peru-mysterious-blanco.png"
+              alt="Logo Perú Mysterious"
+              className="w-[200px] h-auto object-contain"
+            />
+            <p className="text-xs tracking-widest mt-1 ml-1 text-white/70">
+              TOUR OPERATOR
+            </p>
 
-        {/* Logo */}
-        <div>
-          <img
-            src="/logo-peru-mysterious-blanco.png"
-            alt="Peru Mysterious"
-            className="h-12 mb-4"
-          />
-          <p className="text-sm">
-            Somos una agencia turística comprometida con mostrar
-            la magia y cultura del Perú.
-          </p>
-        </div>
+            <div className="mt-6">
+              <img
+                src="/images/payment-methods.png"
+                alt="Métodos de pago aceptados"
+                className="w-[200px] h-auto object-contain"
+              />
+            </div>
+          </div>
 
-        {/* Links */}
-        <div>
-          <h3 className="font-bold text-white mb-3">Secciones</h3>
-          <ul className="space-y-2">
-            <li><Link to="/" className="hover:text-pm-gold">Inicio</Link></li>
-            <li><Link to="/destinos" className="hover:text-pm-gold">Destinos</Link></li>
-            <li><Link to="/tours" className="hover:text-pm-gold">Tours</Link></li>
-            <li><Link to="/blog" className="hover:text-pm-gold">Blog</Link></li>
-          </ul>
-        </div>
+          {/* Col 2: Horarios */}
+          <div>
+            <h4 className="font-russo-one text-lg text-white mb-4">
+              HORARIOS DE OFICINA
+            </h4>
 
-        {/* Contacto */}
-        <div>
-          <h3 className="font-bold text-white mb-3">Contacto</h3>
-          <ul className="space-y-2">
-            <li>📍 Cusco, Perú</li>
-            <li>📞 +51 999 999 999</li>
-            <li>✉️ contacto@perumysterious.com</li>
-          </ul>
-        </div>
+            <div className="flex items-center gap-3 text-white/85">
+              <IoTimeOutline />
+              <span>Lunes a Viernes: 08:00 – 18:00</span>
+            </div>
 
-        {/* Redes */}
-        <div>
-          <h3 className="font-bold text-white mb-3">Síguenos</h3>
-          <div className="flex gap-4 text-xl">
-            <a href="#"><i className="ri-facebook-circle-fill"></i></a>
-            <a href="#"><i className="ri-instagram-fill"></i></a>
-            <a href="#"><i className="ri-tiktok-fill"></i></a>
+            <p className="font-semibold mt-4">Sábados y Domingos:</p>
+            <div className="flex items-center gap-3 mt-2 text-white/85">
+              <IoTimeOutline />
+              <span>08:00 – 18:00</span>
+            </div>
+          </div>
+
+          {/* Col 3: Menú */}
+          <div>
+            <h4 className="font-russo-one text-lg text-white mb-4">
+              MENÚ DE NAVEGACIÓN
+            </h4>
+            <ul className="space-y-2">
+              {navLinks.map((link) => (
+                <li key={link.name}>
+                  <Link
+                    to={link.href}
+                    className="inline-flex items-center gap-2 hover:text-pm-gold transition-colors"
+                  >
+                    <span className="text-pm-gold">•</span>
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Col 4: Contacto */}
+          <div>
+            <h4 className="font-russo-one text-lg text-white mb-4">
+              CONTÁCTANOS
+            </h4>
+
+            <div className="flex items-start gap-3 mb-3">
+              <IoCallOutline className="mt-1" />
+              <div className="flex flex-col gap-1">
+                <a href="tel:+51949141112" className="hover:text-pm-gold transition-colors block">
+                  +51 949 141 112
+                </a>
+                <a href="tel:+51931614600" className="hover:text-pm-gold transition-colors block">
+                  +51 931 614 600
+                </a>
+                <a href="tel:+51954255744" className="hover:text-pm-gold transition-colors block">
+                  +51 954 255 744
+                </a>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 mb-3">
+              <IoMailOutline className="mt-1" />
+              <div className="flex flex-col gap-1">
+                <a
+                  href="mailto:info@perumysterious.com"
+                  className="hover:text-pm-gold transition-colors block"
+                >
+                  info@perumysterious.com
+                </a>
+                <a
+                  href="mailto:reservas@perumysterious.com"
+                  className="hover:text-pm-gold transition-colors block"
+                >
+                  reservas@perumysterious.com
+                </a>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <IoLocationOutline className="mt-1" />
+              <p>Av. Tullumayo 257</p>
+            </div>
           </div>
         </div>
 
-      </div>
+        {/* Redes sociales */}
+        <div className="mt-12 pt-8 border-t border-white/10">
+          <div className="flex justify-center items-center gap-4">
+            <a
+              href="https://facebook.com/perumysterious"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Facebook"
+              className="p-2 rounded-full ring-1 ring-white/10 hover:ring-pm-gold hover:text-pm-gold transition-colors"
+            >
+              <IoLogoFacebook size={22} />
+            </a>
+            <a
+              href="https://tiktok.com/@perumysterious"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="TikTok"
+              className="p-2 rounded-full ring-1 ring-white/10 hover:ring-pm-gold hover:text-pm-gold transition-colors"
+            >
+              <IoLogoTiktok size={22} />
+            </a>
+            <a
+              href="https://youtube.com/@perumysterious"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="YouTube"
+              className="p-2 rounded-full ring-1 ring-white/10 hover:ring-pm-gold hover:text-pm-gold transition-colors"
+            >
+              <IoLogoYoutube size={22} />
+            </a>
+            <a
+              href="https://instagram.com/perumysterious"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram"
+              className="p-2 rounded-full ring-1 ring-white/10 hover:ring-pm-gold hover:text-pm-gold transition-colors"
+            >
+              <IoLogoInstagram size={22} />
+            </a>
+          </div>
 
-      <div className="text-center text-gray-500 text-sm mt-10 border-t border-gray-700 pt-5">
-        © {new Date().getFullYear()} Peru Mysterious — Todos los derechos reservados.
+          {/* Copy */}
+          <p className="text-center text-white/60 text-sm mt-8">
+            &copy; {new Date().getFullYear()} Perú Mysterious. Todos los derechos reservados.
+          </p>
+        </div>
       </div>
     </footer>
   );

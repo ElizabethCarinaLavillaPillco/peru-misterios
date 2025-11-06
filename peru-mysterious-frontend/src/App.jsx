@@ -19,6 +19,10 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/admin/AdminDashboard';
+import ToursList from './pages/ToursList';
+import TourDetail from './pages/TourDetail';
+import Cart from './pages/Cart';
+import MyBookings from './pages/MyBookings';
 
 // Protected Route Component
 const ProtectedRoute = ({ children, requireAdmin = false }) => {
