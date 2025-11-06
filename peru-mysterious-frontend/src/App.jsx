@@ -17,7 +17,7 @@ import Layout from './components/layout/Layout';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import Dashboard from './pages/Dashboard';
+import Dashboard from './pages/mi-cuenta/Dashboard';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ToursList from './pages/ToursList';
 import TourDetail from './pages/TourDetail';

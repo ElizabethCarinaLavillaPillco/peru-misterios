@@ -7,6 +7,11 @@ import { useNavigate } from 'react-router-dom';
 import useAuthStore from '@/store/authStore';
 import WelcomeBanner from '@/components/dashboard/WelcomeBanner';
 import UserProfileCard from '@/components/dashboard/UserProfileCard';
+import UpcomingTrips from '@/components/dashboard/UpcomingTrips';
+import RecentTrips from '@/components/dashboard/RecentTrips';
+import StatisticsCard from '@/components/dashboard/StatisticsCard';
+import PreferencesCard from '@/components/dashboard/PreferencesCard';
+import RewardsSection from '@/components/dashboard/RewardsSection';
 
 export default function Dashboard() {
   const { user, isAuthenticated } = useAuthStore();
