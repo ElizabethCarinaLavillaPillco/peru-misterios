@@ -4,14 +4,15 @@ namespace Tests\Unit;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class UserTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
-    public function un_usuario_tiene_un_nombre_completo()
+    #[Test]
+    public function un_usuario_tiene_un_nombre_completo(): void
     {
         $user = User::factory()->make([
             'name' => 'Juan Pérez',
@@ -20,18 +21,18 @@ class UserTest extends TestCase
         $this->assertEquals('Juan Pérez', $user->name);
     }
 
-    /** @test */
-    public function un_usuario_puede_ser_admin()
+    #[Test]
+    public function un_usuario_puede_ser_admin(): void
     {
-        $admin = User::factory()->create(['role' => 'admin']);
+        $admin = User::factory()->admin()->create();
 
         $this->assertTrue($admin->isAdmin());
     }
 
-    /** @test */
-    public function un_usuario_normal_no_es_admin()
+    #[Test]
+    public function un_usuario_normal_no_es_admin(): void
     {
-        $user = User::factory()->create(['role' => 'user']);
+        $user = User::factory()->create(['role' => 'client']);
 
         $this->assertFalse($user->isAdmin());
     }

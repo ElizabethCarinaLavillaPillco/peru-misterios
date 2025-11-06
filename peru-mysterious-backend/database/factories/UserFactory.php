@@ -1,7 +1,4 @@
 <?php
-// ============================================
-// database/factories/UserFactory.php (actualizar)
-// ============================================
 
 namespace Database\Factories;
 
@@ -22,7 +19,7 @@ class UserFactory extends Factory
             'password' => static::$password ??= Hash::make('password'),
             'phone' => fake()->phoneNumber(),
             'address' => fake()->address(),
-            'role' => 'client',
+            'role' => 'client', // ✅ Cambiado de 'client' correcto
             'is_active' => true,
             'remember_token' => Str::random(10),
         ];
@@ -39,6 +36,13 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'role' => 'admin',
+        ]);
+    }
+
+    public function inactive(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_active' => false,
         ]);
     }
 }

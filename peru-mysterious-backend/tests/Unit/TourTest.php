@@ -5,14 +5,15 @@ namespace Tests\Unit;
 use App\Models\Category;
 use App\Models\Tour;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class TourTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
-    public function un_tour_pertenece_a_una_categoria()
+    #[Test]
+    public function un_tour_pertenece_a_una_categoria(): void
     {
         $category = Category::factory()->create();
         $tour = Tour::factory()->create(['category_id' => $category->id]);
@@ -21,19 +22,34 @@ class TourTest extends TestCase
         $this->assertEquals($category->id, $tour->category->id);
     }
 
-    /** @test */
-    public function un_tour_tiene_precio_formateado()
+    #[Test]
+    public function un_tour_tiene_precio_final(): void
     {
-        $tour = Tour::factory()->make(['price' => 500]);
+        $tour = Tour::factory()->create([
+            'price' => 500,
+            'discount_price' => null,
+        ]);
 
-        $this->assertEquals('S/ 500.00', $tour->formatted_price);
+        $this->assertEquals(500, $tour->final_price);
     }
 
-    /** @test */
-    public function un_tour_puede_ser_destacado()
+    #[Test]
+    public function un_tour_puede_ser_destacado(): void
     {
-        $tour = Tour::factory()->create(['featured' => true]);
+        $tour = Tour::factory()->featured()->create();
 
-        $this->assertTrue($tour->featured);
+        $this->assertTrue($tour->is_featured);
+    }
+
+    #[Test]
+    public function un_tour_tiene_descuento(): void
+    {
+        $tour = Tour::factory()->create([
+            'price' => 500,
+            'discount_price' => 400,
+        ]);
+
+        $this->assertTrue($tour->has_discount);
+        $this->assertEquals(400, $tour->final_price);
     }
 }

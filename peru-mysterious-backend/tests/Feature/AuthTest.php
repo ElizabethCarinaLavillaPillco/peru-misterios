@@ -4,14 +4,15 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class AuthTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
-    public function un_usuario_puede_registrarse()
+    #[Test]
+    public function un_usuario_puede_registrarse(): void
     {
         $response = $this->postJson('/api/register', [
             'name' => 'Juan Pérez',
@@ -22,8 +23,12 @@ class AuthTest extends TestCase
 
         $response->assertStatus(201)
                  ->assertJsonStructure([
-                     'user' => ['id', 'name', 'email'],
-                     'token'
+                     'success',
+                     'message',
+                     'data' => [
+                         'user' => ['id', 'name', 'email'],
+                         'token'
+                     ]
                  ]);
 
         $this->assertDatabaseHas('users', [
@@ -31,8 +36,8 @@ class AuthTest extends TestCase
         ]);
     }
 
-    /** @test */
-    public function el_registro_requiere_campos_obligatorios()
+    #[Test]
+    public function el_registro_requiere_campos_obligatorios(): void
     {
         $response = $this->postJson('/api/register', []);
 
@@ -40,8 +45,8 @@ class AuthTest extends TestCase
                  ->assertJsonValidationErrors(['name', 'email', 'password']);
     }
 
-    /** @test */
-    public function el_email_debe_ser_unico()
+    #[Test]
+    public function el_email_debe_ser_unico(): void
     {
         User::factory()->create(['email' => 'juan@example.com']);
 
@@ -56,8 +61,8 @@ class AuthTest extends TestCase
                  ->assertJsonValidationErrors(['email']);
     }
 
-    /** @test */
-    public function un_usuario_puede_iniciar_sesion()
+    #[Test]
+    public function un_usuario_puede_iniciar_sesion(): void
     {
         $user = User::factory()->create([
             'email' => 'juan@example.com',
@@ -71,13 +76,17 @@ class AuthTest extends TestCase
 
         $response->assertStatus(200)
                  ->assertJsonStructure([
-                     'user' => ['id', 'name', 'email'],
-                     'token'
+                     'success',
+                     'message',
+                     'data' => [
+                         'user' => ['id', 'name', 'email'],
+                         'token'
+                     ]
                  ]);
     }
 
-    /** @test */
-    public function el_login_falla_con_credenciales_incorrectas()
+    #[Test]
+    public function el_login_falla_con_credenciales_incorrectas(): void
     {
         $user = User::factory()->create([
             'email' => 'juan@example.com',
@@ -92,8 +101,8 @@ class AuthTest extends TestCase
         $response->assertStatus(401);
     }
 
-    /** @test */
-    public function un_usuario_autenticado_puede_obtener_su_perfil()
+    #[Test]
+    public function un_usuario_autenticado_puede_obtener_su_perfil(): void
     {
         $user = User::factory()->create();
 
@@ -102,13 +111,16 @@ class AuthTest extends TestCase
 
         $response->assertStatus(200)
                  ->assertJson([
-                     'id' => $user->id,
-                     'email' => $user->email,
+                     'success' => true,
+                     'data' => [
+                         'id' => $user->id,
+                         'email' => $user->email,
+                     ]
                  ]);
     }
 
-    /** @test */
-    public function un_usuario_autenticado_puede_cerrar_sesion()
+    #[Test]
+    public function un_usuario_autenticado_puede_cerrar_sesion(): void
     {
         $user = User::factory()->create();
 
@@ -116,11 +128,14 @@ class AuthTest extends TestCase
                          ->postJson('/api/logout');
 
         $response->assertStatus(200)
-                 ->assertJson(['message' => 'Logged out successfully']);
+                 ->assertJson([
+                     'success' => true,
+                     'message' => 'Sesión cerrada exitosamente'
+                 ]);
     }
 
-    /** @test */
-    public function un_usuario_puede_actualizar_su_perfil()
+    #[Test]
+    public function un_usuario_puede_actualizar_su_perfil(): void
     {
         $user = User::factory()->create();
 
@@ -139,8 +154,8 @@ class AuthTest extends TestCase
         ]);
     }
 
-    /** @test */
-    public function un_usuario_puede_cambiar_su_contrasena()
+    #[Test]
+    public function un_usuario_puede_cambiar_su_contrasena(): void
     {
         $user = User::factory()->create([
             'password' => bcrypt('oldpassword'),
@@ -149,8 +164,8 @@ class AuthTest extends TestCase
         $response = $this->actingAs($user, 'sanctum')
                          ->postJson('/api/change-password', [
                              'current_password' => 'oldpassword',
-                             'password' => 'newpassword123',
-                             'password_confirmation' => 'newpassword123',
+                             'new_password' => 'newpassword123',
+                             'new_password_confirmation' => 'newpassword123',
                          ]);
 
         $response->assertStatus(200);
