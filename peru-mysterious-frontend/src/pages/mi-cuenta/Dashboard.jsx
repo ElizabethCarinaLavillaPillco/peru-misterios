@@ -218,7 +218,7 @@ export default function Dashboard() {
             ¡Explora nuestros tours y comienza tu aventura por Perú!
           </p>
           <Link
-            to="/tours"
+            to="/actividades"
             className="inline-flex items-center gap-2 px-6 py-3 bg-pm-gold hover:bg-pm-gold-dark text-white font-semibold rounded-lg transition-colors"
           >
             <IoMapOutline size={20} />
