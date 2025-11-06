@@ -1,5 +1,4 @@
-// components/sections/contacto/ContactForm.jsx
-"use client";
+import React from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 const adultos = Array.from({ length: 10 }, (_, i) => i + 1);

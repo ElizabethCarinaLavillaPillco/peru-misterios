@@ -1,6 +1,5 @@
 // components/sections/ayuda/FAQAyuda.jsx
-"use client";
-import { useEffect, useMemo, useRef, useState } from "react";
+import  React from "react";
 import { IoChevronDown } from "react-icons/io5";
 
 /* ===== Data ===== */

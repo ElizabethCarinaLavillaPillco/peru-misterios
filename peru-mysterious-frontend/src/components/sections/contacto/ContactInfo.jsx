@@ -1,8 +1,7 @@
-// components/sections/contacto/ContactInfo.jsx
-"use client";
-
+import React from "react";
+import { Link } from "react-router-dom";
 import { useState } from "react";
-import Link from "next/link";
+
 import {
   IoMailOutline,
   IoCallOutline,

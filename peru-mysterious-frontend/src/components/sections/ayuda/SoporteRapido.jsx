@@ -1,7 +1,5 @@
-// components/sections/ayuda/SoporteRapido.jsx
-"use client";
-
-import Link from "next/link";
+import React from "react";
+import { Link } from "react-router-dom";
 import { IoLogoWhatsapp, IoMailOutline, IoCallOutline } from "react-icons/io5";
 
 const CARDS = [

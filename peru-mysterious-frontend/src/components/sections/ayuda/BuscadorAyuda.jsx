@@ -1,7 +1,5 @@
-// components/sections/ayuda/BuscadorAyuda.jsx
-"use client";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { IoSearchOutline, IoClose } from "react-icons/io5";
+import React from "react";
+  import { IoSearchOutline, IoClose } from "react-icons/io5";
 
 /* ===== Base de artículos ===== */
 const BASE = [

@@ -1,6 +1,5 @@
-// components/sections/ayuda/CategoriasAyuda.jsx
-"use client";
-import Link from "next/link";
+import React from "react";
+import { Link } from "react-router-dom";
 import {
   IoCalendarOutline,
   IoCardOutline,

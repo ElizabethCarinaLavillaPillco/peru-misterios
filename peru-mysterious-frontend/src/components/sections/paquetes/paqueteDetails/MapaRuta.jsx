@@ -1,6 +1,5 @@
 // src/components/paquetes/paqueteDetails/MapaRuta.jsx
-import Image from "next/image";
-import Link from "next/link";
+import { Link } from "react-router-dom";
 
 /**
  * props:
@@ -44,7 +43,7 @@ export default function MapaRuta({ waypoints = [], previewImg }) {
           <div className="relative h-72">
             {/* Fallback visual (imagen de mapa pre-renderizada) */}
             {previewImg ? (
-              <Image src={previewImg} alt="Vista de la ruta" fill className="object-cover" />
+              <img src={previewImg} alt="Vista de la ruta" fill className="object-cover" />
             ) : (
               <div className="absolute inset-0 grid place-items-center text-sm text-[var(--pm-gray-dark,#373435)]">
                 <p>Agrega <code>NEXT_PUBLIC_MAPS_EMBED_API_KEY</code> para ver el mapa incrustado, o provee un <code>previewImg</code>.</p>

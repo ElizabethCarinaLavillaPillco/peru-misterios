@@ -1,7 +1,5 @@
-// components/sections/ayuda/HeroAyuda.jsx
-"use client";
-
-import Link from "next/link";
+import React from "react";
+import { Link } from "react-router-dom";
 import { IoHelpBuoyOutline } from "react-icons/io5";
 
 const WHATSAPP_URL = "https://wa.me/519999999999"; // ← TODO: reemplaza por tu número
