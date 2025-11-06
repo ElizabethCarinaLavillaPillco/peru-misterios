@@ -1,12 +1,12 @@
 // src/pages/Home.jsx
 
-import HeroSection from '@/components/home/HeroSection';
-import DestinosPopulares from '@/components/home/DestinosPopulares';
-import ToursDestacados from '@/components/home/ToursDestacados';
-import WhyChooseUs from '@/components/home/WhyChooseUs';
-import Testimonios from '@/components/home/Testimonios';
-import { Certificaciones } from '@/components/home/Certificaciones';
-import { FinalCta } from '@/components/home/FinalCta';
+import HeroSection from '@/components/sections/home/HeroSection';
+import DestinosPopulares from '@/components/sections/home/DestinosPopulares';
+import ToursDestacados from '@/components/sections/home/ToursDestacados';
+import WhyChooseUs from '@/components/sections/home/WhyChooseUs';
+import Testimonios from '@/components/sections/home/Testimonios';
+import { Certificaciones } from '@/components/sections/home/Certificaciones';
+import { FinalCta } from '@/components/sections/home/FinalCta';
 
 export default function Home() {
   return (
