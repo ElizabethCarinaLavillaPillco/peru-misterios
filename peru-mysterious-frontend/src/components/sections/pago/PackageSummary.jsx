@@ -1,6 +1,3 @@
-// components/sections/pago/PackageSummary.jsx
-"use client";
-
 import { useMemo } from "react";
 import CartSummary from "./CartSummary";
 import {

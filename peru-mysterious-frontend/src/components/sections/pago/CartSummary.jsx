@@ -1,6 +1,3 @@
-// components/sections/pago/CartSummary.jsx
-"use client";
-
 import { useMemo } from "react";
 
 export default function CartSummary({

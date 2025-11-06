@@ -1,6 +1,4 @@
-// src/components/sections/nosotros/Intro.jsx
-import Image from "next/image";
-import Link from "next/link";
+import { Link } from "react-router-dom";
 import {
   IoShieldCheckmarkOutline,
   IoMapOutline,
@@ -98,11 +96,11 @@ export default function Intro() {
               {/* CTAs */}
               <div className="mt-7 flex flex-wrap gap-3">
                 <Link
-                  href="/paquetes"
+                  to="/paquetes"
                   className="
                         inline-flex items-center justify-center rounded-xl
                         bg-pm-gold px-5 py-3 text-sm font-extrabold
-                        text-black !text-black     /* ⬅️ fuerza el color del texto */
+                        text-black !text-black
                         hover:brightness-105 active:brightness-95
                         focus:outline-none focus:ring-2 focus:ring-pm-gold/70
                       "
@@ -110,7 +108,7 @@ export default function Intro() {
                   Ver paquetes
                 </Link>
                 <Link
-                  href="/contacto"
+                  to="/contacto"
                   className="
                     inline-flex items-center justify-center rounded-xl
                     border border-black/10 bg-white px-5 py-3
@@ -132,13 +130,11 @@ export default function Intro() {
                 className="pointer-events-none absolute -top-10 -right-10 h-40 w-40 rounded-full bg-pm-gold/20 blur-3xl opacity-70"
               />
               <div className="relative aspect-[4/3] w-full">
-                <Image
-                  src="/images/nosotros-hero.jpg" // coloca la imagen en /public/images/
+                <img
+                  src="/images/nosotros-hero.jpg"
                   alt="Equipo de Perú Mysterious en ruta por los Andes"
-                  fill
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 640px"
-                  className="object-cover"
-                  priority={false}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
                 />
               </div>
             </div>

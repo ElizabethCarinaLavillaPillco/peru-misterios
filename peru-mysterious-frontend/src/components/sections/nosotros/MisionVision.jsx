@@ -1,6 +1,3 @@
-// src/components/sections/nosotros/MisionVision.jsx
-"use client";
-
 import { useEffect, useRef, useState } from "react";
 import {
   IoFlagOutline,       // para "Misión"

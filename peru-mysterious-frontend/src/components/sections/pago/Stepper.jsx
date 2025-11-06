@@ -1,6 +1,3 @@
-// components/sections/pago/Stepper.jsx
-"use client";
-
 export default function Stepper({
   current = 1,
   title,        // título opcional

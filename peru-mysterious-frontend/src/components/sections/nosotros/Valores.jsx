@@ -1,8 +1,4 @@
-// src/components/sections/nosotros/Valores.jsx
-"use client";
-
-import { useEffect, useRef, useState } from "react";
-import {
+import { useEffect, useRef, useState } from "react";import {
   IoSparklesOutline,
   IoCheckmarkCircleOutline,
   IoShieldCheckmarkOutline,

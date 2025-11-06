@@ -1,8 +1,4 @@
-// components/sections/pago/PaymentMethods.jsx
-"use client";
-
 import { useState, useMemo } from "react";
-import Image from "next/image";
 import EditUserModal from "./EditUserModal";
 import {
   IoCardOutline,
@@ -118,7 +114,7 @@ export default function PaymentMethods({ selected, onSelect, user, onUpdateUser 
 
                   <span className="ml-auto flex items-center gap-2">
                     {m.badges?.map((src) => (
-                      <Image
+                      <img
                         key={src}
                         src={src}
                         alt="brand"

@@ -1,6 +1,3 @@
-// components/sections/pago/TravelerForm.jsx
-"use client";
-
 import { useState } from "react";
 
 export default function TravelerForm({ user, onUpdateUser, onNext }) {

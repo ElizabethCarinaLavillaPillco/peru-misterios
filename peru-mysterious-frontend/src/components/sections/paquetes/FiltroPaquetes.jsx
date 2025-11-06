@@ -1,11 +1,10 @@
-"use client";
 import { useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { Navigate, replace, useNavigate, useSearchParams } from "react-router-dom";
 
 const CIUDADES = ["Puno","Madre de Dios","Lima","Ica","Huaraz","Cusco","Arequipa","Apurímac"];
 
 export default function FiltroPaquetes() {
-  const router = useRouter();
+  const navigate = useNavigate()
   const sp = useSearchParams();
 
   // Estado inicial desde URL
@@ -23,7 +22,7 @@ export default function FiltroPaquetes() {
     q.set("diasMax", String(days));
     dificultad ? q.set("dificultad", dificultad) : q.delete("dificultad");
     ciudades.length ? q.set("ciudades", ciudades.join(",")) : q.delete("ciudades");
-    router.replace(`?${q.toString()}`, { scroll: false });
+    Navigate(`?${q.toString()}`, { replace: true, scroll: false });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [price, days, dificultad, ciudades]);
 
@@ -34,7 +33,7 @@ export default function FiltroPaquetes() {
     setCiudades([]);
     const q = new URLSearchParams(sp.toString());
     ["precioMax","diasMax","dificultad","ciudades"].forEach(k => q.delete(k));
-    router.replace(`?${q.toString()}`, { scroll: false });
+    navigate(`?${q.toString()}`, { replace: true, scroll: false });
   };
 
   const box = "rounded-2xl border border-[var(--pm-gold,#E5A400)]/35 bg-white p-4 shadow-sm";

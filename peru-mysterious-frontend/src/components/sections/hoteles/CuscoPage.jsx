@@ -1,5 +1,4 @@
-"use client";
-
+import  React from "react";
 import HotelHeader from "@/components/hotels/HotelHeader";
 import HotelSection from "@/components/hotels/HotelSection";
 import RoomCard from "@/components/hotels/RoomCard";

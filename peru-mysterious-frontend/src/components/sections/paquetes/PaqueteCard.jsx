@@ -1,7 +1,7 @@
-// src/components/paquetes/PaqueteCard.jsx
-import Image from "next/image";
-import Link from "next/link";
+import { Link } from "react-router-dom";
 
+// Reemplazar <Image> por <img>
+// Cambiar href por to en <Link>
 function Rating({ value = 4.8 }) {
   const full = Math.round(value);
   return (

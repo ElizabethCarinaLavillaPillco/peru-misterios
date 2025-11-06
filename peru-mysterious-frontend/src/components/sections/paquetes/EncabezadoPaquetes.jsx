@@ -1,4 +1,3 @@
-"use client";
 import CategoriaPills from "./CategoriaPills";
 
 export default function EncabezadoPaquetes() {
