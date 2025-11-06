@@ -12,40 +12,34 @@ const useAuthStore = create(
 
       login: async (email, password) => {
         try {
-          console.log('authStore.login called with:', { email });
-          
-          const response = await api.post('/login', {
-            email,
-            password,
-          });
-
-          console.log('Login response:', response.data);
+          const response = await api.post('/login', { email, password });
 
           if (response.data.success) {
             const { user, token } = response.data.data;
             
             localStorage.setItem('token', token);
-            set({ 
-              token, 
-              user, 
-              isAuthenticated: true 
-            });
+            set({ token, user, isAuthenticated: true });
 
-            // Redirigir según el rol
             window.location.href = user.role === 'admin' ? '/admin' : '/mi-cuenta';
-          } else {
-            throw new Error(response.data.message || 'Error en el login');
           }
         } catch (error) {
-          console.error('Login error in store:', error);
+          console.error('Login error:', error);
           throw error;
         }
       },
 
-      logout: () => {
-        localStorage.removeItem('token');
-        set({ token: null, user: null, isAuthenticated: false });
-        window.location.href = '/login';
+      logout: async () => {
+        try {
+          // Llamar al endpoint de logout en el backend
+          await api.post('/logout');
+        } catch (error) {
+          console.error('Logout error:', error);
+        } finally {
+          // Limpiar estado local
+          localStorage.removeItem('token');
+          set({ token: null, user: null, isAuthenticated: false });
+          window.location.href = '/login';
+        }
       },
 
       checkAuth: async () => {
