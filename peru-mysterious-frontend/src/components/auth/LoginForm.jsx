@@ -2,7 +2,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '@/store/authStore';
-import api from '@/lib/api';
 
 export default function LoginForm() {
   const navigate = useNavigate();
@@ -19,6 +18,8 @@ export default function LoginForm() {
       ...formData,
       [e.target.name]: e.target.value,
     });
+    // Limpiar error al escribir
+    if (error) setError('');
   };
 
   const handleSubmit = async (e) => {
@@ -26,23 +27,25 @@ export default function LoginForm() {
     setError('');
     setLoading(true);
 
+    // Validación básica
+    if (!formData.email || !formData.password) {
+      setError('Por favor completa todos los campos');
+      setLoading(false);
+      return;
+    }
+
+    console.log('Attempting login with:', { email: formData.email });
+
     try {
-      const response = await api.post('/login', formData);
-      
-      // Guardar token y usuario en el store
-      login(response.data.token, response.data.user);
-      
-      // Redirigir según el rol
-      if (response.data.user.role === 'admin') {
-        navigate('/admin');
-      } else {
-        navigate('/mi-cuenta');
-      }
+      await login(formData.email, formData.password);
+      // La navegación se maneja en el store
     } catch (err) {
-      setError(
-        err.response?.data?.message || 
-        'Error al iniciar sesión. Por favor, verifica tus credenciales.'
-      );
+      console.error('Login error:', err);
+      const errorMessage = err.response?.data?.message || 
+                          err.response?.data?.errors?.email?.[0] ||
+                          err.response?.data?.errors?.password?.[0] ||
+                          'Error al iniciar sesión. Por favor, verifica tus credenciales.';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -17,6 +18,9 @@ class AuthController extends Controller
      */
     public function register(Request $request)
     {
+        // Log para debug
+        Log::info('Register attempt:', $request->all());
+
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
@@ -25,6 +29,7 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) {
+            Log::error('Register validation failed:', $validator->errors()->toArray());
             return response()->json([
                 'success' => false,
                 'message' => 'Error de validación',
@@ -32,25 +37,34 @@ class AuthController extends Controller
             ], 422);
         }
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'phone' => $request->phone,
-            'role' => 'client', // Por defecto todos son clientes
-            'is_active' => true,
-        ]);
+        try {
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'phone' => $request->phone,
+                'role' => 'client',
+                'is_active' => true,
+            ]);
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+            $token = $user->createToken('auth_token')->plainTextToken;
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Usuario registrado exitosamente',
-            'data' => [
-                'user' => $user,
-                'token' => $token,
-            ]
-        ], 201);
+            return response()->json([
+                'success' => true,
+                'message' => 'Usuario registrado exitosamente',
+                'data' => [
+                    'user' => $user,
+                    'token' => $token,
+                ]
+            ], 201);
+        } catch (\Exception $e) {
+            Log::error('Register error:', ['error' => $e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al registrar usuario',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -58,12 +72,16 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
+        // Log para debug
+        Log::info('Login attempt:', ['email' => $request->email]);
+
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
-            'password' => 'required',
+            'password' => 'required|string',
         ]);
 
         if ($validator->fails()) {
+            Log::error('Login validation failed:', $validator->errors()->toArray());
             return response()->json([
                 'success' => false,
                 'message' => 'Error de validación',
@@ -73,7 +91,16 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (!$user) {
+            Log::warning('Login failed: User not found', ['email' => $request->email]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Credenciales incorrectas'
+            ], 401);
+        }
+
+        if (!Hash::check($request->password, $user->password)) {
+            Log::warning('Login failed: Invalid password', ['email' => $request->email]);
             return response()->json([
                 'success' => false,
                 'message' => 'Credenciales incorrectas'
@@ -81,6 +108,7 @@ class AuthController extends Controller
         }
 
         if (!$user->is_active) {
+            Log::warning('Login failed: User inactive', ['email' => $request->email]);
             return response()->json([
                 'success' => false,
                 'message' => 'Tu cuenta está inactiva. Contacta al administrador.'
@@ -88,6 +116,8 @@ class AuthController extends Controller
         }
 
         $token = $user->createToken('auth_token')->plainTextToken;
+
+        Log::info('Login successful', ['email' => $request->email, 'user_id' => $user->id]);
 
         return response()->json([
             'success' => true,
@@ -159,13 +189,14 @@ class AuthController extends Controller
     public function changePassword(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'current_password' => 'required',
-            'new_password' => 'required|string|min:8|confirmed',
+            'current_password' => 'required|string',
+            'password' => 'required|string|min:8|confirmed',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
+                'message' => 'Error de validación',
                 'errors' => $validator->errors()
             ], 422);
         }
@@ -180,7 +211,7 @@ class AuthController extends Controller
         }
 
         $user->update([
-            'password' => Hash::make($request->new_password)
+            'password' => Hash::make($request->password)
         ]);
 
         return response()->json([
