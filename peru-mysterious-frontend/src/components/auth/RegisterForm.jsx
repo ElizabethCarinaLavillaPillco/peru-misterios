@@ -1,4 +1,4 @@
-// src/components/auth/LoginForm.jsx
+// src/components/auth/RegisterForm.jsx
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '@/store/authStore';
@@ -6,77 +6,70 @@ import api from '@/lib/api';
 
 export default function RegisterForm() {
   const navigate = useNavigate();
-  const { register, loading } = useAuthStore();
-  
+  const { login } = useAuthStore();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     password_confirmation: '',
-    phone: '',
   });
-  
-  const [errors, setErrors] = useState({});
-  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: null
-      }));
-    }
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrors({});
-
-    // Validaciones básicas
+    setError('');
+    
     if (formData.password !== formData.password_confirmation) {
-      setErrors({ password_confirmation: ['Las contraseñas no coinciden'] });
+      setError('Las contraseñas no coinciden');
       return;
     }
 
+    setLoading(true);
+
     try {
-      await register(formData);
-      navigate('/mi-cuenta');
-    } catch (error) {
-      console.error('Error en registro:', error);
-      if (error.response?.status === 422) {
-        setErrors(error.response.data.errors || {});
+      const response = await api.post('/register', formData);
+      
+      // Guardar token y usuario en el store
+      login(response.data.token, response.data.user);
+      
+      // Redirigir según el rol
+      if (response.data.user.role === 'admin') {
+        navigate('/admin');
       } else {
-        setErrors({
-          general: error.response?.data?.message || 'Error al registrarse'
-        });
+        navigate('/mi-cuenta');
       }
+    } catch (err) {
+      setError(
+        err.response?.data?.message || 
+        'Error al registrarse. Por favor, intenta nuevamente.'
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-gray-800">Crear Cuenta</h2>
-        <p className="text-gray-600 mt-2">Únete a Perú Mysterious</p>
-      </div>
-
-      {errors.general && (
-        <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-          <p className="text-sm">{errors.general}</p>
+    <div className="w-full max-w-md mx-auto p-6 bg-white rounded-2xl shadow-lg">
+      <h2 className="text-2xl font-bold text-center mb-6">Crear Cuenta</h2>
+      
+      {error && (
+        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+          {error}
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Nombre */}
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-            Nombre Completo
+          <label htmlFor="name" className="block text-sm font-medium mb-1">
+            Nombre completo
           </label>
           <input
             type="text"
@@ -84,21 +77,15 @@ export default function RegisterForm() {
             name="name"
             value={formData.name}
             onChange={handleChange}
-            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
-              errors.name ? 'border-red-500' : 'border-gray-300'
-            }`}
             required
-            disabled={loading}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pm-gold focus:border-transparent"
+            placeholder="Juan Pérez"
           />
-          {errors.name && (
-            <p className="mt-1 text-sm text-red-600">{errors.name[0]}</p>
-          )}
         </div>
 
-        {/* Email */}
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-            Correo Electrónico
+          <label htmlFor="email" className="block text-sm font-medium mb-1">
+            Email
           </label>
           <input
             type="email"
@@ -106,110 +93,64 @@ export default function RegisterForm() {
             name="email"
             value={formData.email}
             onChange={handleChange}
-            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
-              errors.email ? 'border-red-500' : 'border-gray-300'
-            }`}
             required
-            disabled={loading}
-          />
-          {errors.email && (
-            <p className="mt-1 text-sm text-red-600">{errors.email[0]}</p>
-          )}
-        </div>
-
-        {/* Teléfono */}
-        <div>
-          <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-            Teléfono (opcional)
-          </label>
-          <input
-            type="tel"
-            id="phone"
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-            disabled={loading}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pm-gold focus:border-transparent"
+            placeholder="tu@email.com"
           />
         </div>
 
-        {/* Contraseña */}
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="password" className="block text-sm font-medium mb-1">
             Contraseña
           </label>
-          <div className="relative">
-            <input
-              type={showPassword ? 'text' : 'password'}
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
-                errors.password ? 'border-red-500' : 'border-gray-300'
-              }`}
-              required
-              disabled={loading}
-              minLength={8}
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
-            >
-              {showPassword ? '👁️' : '👁️‍🗨️'}
-            </button>
-          </div>
-          {errors.password && (
-            <p className="mt-1 text-sm text-red-600">{errors.password[0]}</p>
-          )}
+          <input
+            type="password"
+            id="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+            minLength={8}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pm-gold focus:border-transparent"
+            placeholder="••••••••"
+          />
         </div>
 
-        {/* Confirmar contraseña */}
         <div>
-          <label htmlFor="password_confirmation" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="password_confirmation" className="block text-sm font-medium mb-1">
             Confirmar Contraseña
           </label>
           <input
-            type={showPassword ? 'text' : 'password'}
+            type="password"
             id="password_confirmation"
             name="password_confirmation"
             value={formData.password_confirmation}
             onChange={handleChange}
-            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
-              errors.password_confirmation ? 'border-red-500' : 'border-gray-300'
-            }`}
             required
-            disabled={loading}
+            minLength={8}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pm-gold focus:border-transparent"
+            placeholder="••••••••"
           />
-          {errors.password_confirmation && (
-            <p className="mt-1 text-sm text-red-600">{errors.password_confirmation[0]}</p>
-          )}
         </div>
 
-        {/* Submit */}
         <button
           type="submit"
           disabled={loading}
-          className={`w-full py-3 px-4 rounded-lg text-white font-semibold transition ${
-            loading
-              ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-blue-600 hover:bg-blue-700'
-          }`}
+          className="w-full bg-pm-gold hover:bg-pm-gold-dark text-black font-bold py-3 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? 'Registrando...' : 'Crear Cuenta'}
         </button>
-
-        {/* Login link */}
-        <div className="text-center mt-6">
-          <p className="text-sm text-gray-600">
-            ¿Ya tienes cuenta?{' '}
-            <Link to="/login" className="text-blue-600 hover:text-blue-800 font-semibold">
-              Inicia sesión aquí
-            </Link>
-          </p>
-        </div>
       </form>
+
+      <p className="mt-4 text-center text-sm text-gray-600">
+        ¿Ya tienes cuenta?{' '}
+        <button
+          onClick={() => navigate('/login')}
+          className="text-pm-gold hover:underline font-semibold"
+        >
+          Inicia sesión aquí
+        </button>
+      </p>
     </div>
   );
 }
