@@ -80,6 +80,8 @@ function App() {
         {/* Rutas públicas con Layout */}
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
+
+          
           
           {/* Auth */}
           <Route 
