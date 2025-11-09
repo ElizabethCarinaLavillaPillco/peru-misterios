@@ -1,3 +1,4 @@
+
 import CuscoPage from "@/components/sections/hoteles/CuscoPage";
 
 export const metadata = {

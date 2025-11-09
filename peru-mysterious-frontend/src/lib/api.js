@@ -3,7 +3,7 @@
 import api from './axios';
 
 // ============================================
-// AUTH API
+// AUTH API 
 // ============================================
 export const authAPI = {
   // Registro

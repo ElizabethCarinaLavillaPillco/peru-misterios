@@ -12,6 +12,7 @@ import {
   IoSunnyOutline,
 } from "react-icons/io5";
 import useAuthStore from "@/store/authStore";
+import useCartStore from "@/store/cartStore";
 
 /* Links principales */
 const navLinks = [
@@ -177,6 +178,8 @@ export default function Navbar() {
   
   const location = useLocation();
   const { isAuthenticated, user } = useAuthStore();
+  const { items } = useCartStore();
+  const cartItemCount = items.length;
 
   useEffect(() => {
     const onDocClick = (e) => {
@@ -275,13 +278,19 @@ export default function Navbar() {
             </ul>
 
             <div className="hidden md:flex items-center gap-2">
-              <Link
-                to="/cart"
-                title="Carrito"
-                className="p-2 rounded-full transition-colors hover:bg-white/10 text-white icon-outline relative"
-              >
-                <IoCartOutline size={22} />
-              </Link>
+                {/* Carrito con Badge */}
+                <Link
+                  to="/cart"
+                  title="Carrito"
+                  className="p-2 rounded-full transition-colors hover:bg-white/10 text-white icon-outline relative"
+                >
+                  <IoCartOutline size={22} />
+                  {cartItemCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                      {cartItemCount}
+                    </span>
+                  )}
+                </Link>
               
               <button 
                 title="Cambiar idioma" 
