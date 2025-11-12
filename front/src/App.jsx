@@ -57,7 +57,7 @@ import ToursListPage from './pages/admin/tours/ToursListPage';
 import CreateTourPage from './pages/admin/tours/CreateTourPage';
 import UsersListPage from './pages/admin/users/UsersListPage';
 import BookingsListPage from './pages/admin/bookings/BookingsListPage';
-
+import BookingsStatsPage from './pages/admin/stats/BookingsStatsPage';
 // Protected Route Component
 const ProtectedRoute = ({ children, requireAdmin = false }) => {
   const { isAuthenticated, user } = useAuthStore();
@@ -213,6 +213,7 @@ function App() {
           <Route path="tours/:id/edit" element={<CreateTourPage />} />
           <Route path="users" element={<UsersListPage />} />
           <Route path="bookings" element={<BookingsListPage />} />
+          <Route path="stats" element={<BookingsStatsPage />} />
         </Route>
 
         {/* 404 */}

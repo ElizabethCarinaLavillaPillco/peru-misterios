@@ -227,6 +227,17 @@ export default function AdminDashboard() {
                 <p className="text-sm text-white/80">Gestiona las reservas</p>
               </div>
             </Link>
+
+            <Link
+              to="/admin/stats"
+              className="flex items-center gap-3 p-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-md hover:shadow-lg"
+            >
+              <IoStatsChartOutline size={24} />
+              <div>
+                <h3 className="font-semibold">Ver Estadísticas</h3>
+                <p className="text-sm text-white/80">Gestiona las estadísticas</p>
+              </div>              
+            </Link>
           </div>
         </div>
 
