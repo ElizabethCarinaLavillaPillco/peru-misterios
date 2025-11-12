@@ -13,6 +13,16 @@ const useFavoritesStore = create(
       // Cargar favoritos desde backend
       loadFavorites: async () => {
         try {
+          // Obtener información del usuario actual
+          const userResponse = await api.get('/me');
+          const user = userResponse.data.data;
+          
+          // Si es administrador, no cargar favoritos
+          if (user.role === 'admin') {
+            set({ favorites: [], loading: false });
+            return;
+          }
+          
           set({ loading: true });
           const response = await api.get('/favorites');
           set({ 
@@ -21,13 +31,21 @@ const useFavoritesStore = create(
           });
         } catch (error) {
           console.error('Error cargando favoritos:', error);
-          set({ loading: false });
+          set({ loading: false, favorites: [] });
         }
       },
 
       // Agregar a favoritos
       addFavorite: async (tourId) => {
         try {
+          // Verificar si es administrador
+          const userResponse = await api.get('/me');
+          const user = userResponse.data.data;
+          
+          if (user.role === 'admin') {
+            throw new Error('Los administradores no pueden agregar favoritos');
+          }
+          
           const response = await api.post('/favorites', { tour_id: tourId });
           
           const currentFavorites = get().favorites;
@@ -45,6 +63,14 @@ const useFavoritesStore = create(
       // Eliminar de favoritos
       removeFavorite: async (tourId) => {
         try {
+          // Verificar si es administrador
+          const userResponse = await api.get('/me');
+          const user = userResponse.data.data;
+          
+          if (user.role === 'admin') {
+            throw new Error('Los administradores no pueden eliminar favoritos');
+          }
+          
           await api.delete(`/favorites/${tourId}`);
           
           const favorites = get().favorites.filter(fav => fav.tour_id !== tourId);

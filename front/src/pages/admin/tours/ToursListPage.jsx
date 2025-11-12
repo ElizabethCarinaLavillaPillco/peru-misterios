@@ -36,9 +36,13 @@ export default function ToursListPage() {
   const loadTours = async () => {
     try {
       const response = await api.get('/tours');
-      setTours(response.data.data || []);
+      // Si la respuesta está paginada, los datos estarán en response.data.data.data
+      // Si no está paginada, estarán en response.data.data
+      const toursData = response.data.data.data || response.data.data || [];
+      setTours(Array.isArray(toursData) ? toursData : []);
     } catch (error) {
       console.error('Error cargando tours:', error);
+      setTours([]); // Asegurarse de que tours sea siempre un array
     } finally {
       setLoading(false);
     }

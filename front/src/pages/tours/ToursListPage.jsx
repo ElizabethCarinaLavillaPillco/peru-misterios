@@ -67,9 +67,8 @@ export default function ToursListPage() {
   const loadFavorites = async () => {
     if (!isAuthenticated) return;
     try {
-      // TODO: Implementar endpoint de favoritos
-      // const response = await api.get('/favorites');
-      // setFavorites(response.data.map(f => f.tour_id));
+      const response = await api.get('/favorites/ids');
+      setFavorites(response.data.data || []);
     } catch (error) {
       console.error('Error cargando favoritos:', error);
     }
