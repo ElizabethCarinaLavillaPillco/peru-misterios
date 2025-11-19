@@ -1,12 +1,24 @@
-
 // =============================================================
-// ARCHIVO: src/pages/admin/tours/CreateTourPage.jsx
+// ARCHIVO: src/pages/admin/tours/CreateTourPage.jsx (MEJORADO)
 // =============================================================
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '@/lib/api';
 import { IoArrowBack, IoSave, IoAdd, IoClose } from 'react-icons/io5';
+
+// Lista de destinos disponibles
+const DESTINOS = [
+  { value: 'Cusco', label: 'Cusco' },
+  { value: 'Arequipa', label: 'Arequipa' },
+  { value: 'Puno', label: 'Puno' },
+  { value: 'Ica', label: 'Ica' },
+  { value: 'Huaraz', label: 'Huaraz' },
+  { value: 'Manu', label: 'Manu' },
+  { value: 'Lima', label: 'Lima' },
+  { value: 'Trujillo', label: 'Trujillo' },
+  { value: 'Piura', label: 'Piura' },
+];
 
 export default function CreateTourPage() {
   const navigate = useNavigate();
@@ -22,7 +34,7 @@ export default function CreateTourPage() {
     duration_nights: '',
     difficulty_level: 'moderate',
     max_group_size: '',
-    location: '',
+    location: 'Cusco', // ← Valor por defecto
     featured_image: '',
     is_featured: false,
     is_active: true,
@@ -139,6 +151,29 @@ export default function CreateTourPage() {
                 />
               </div>
 
+              {/* SELECTOR DE DESTINO - IMPORTANTE */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Destino/Ubicación *
+                </label>
+                <select
+                  name="location"
+                  value={formData.location}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pm-gold focus:border-transparent"
+                >
+                  {DESTINOS.map((destino) => (
+                    <option key={destino.value} value={destino.value}>
+                      {destino.label}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-gray-500 mt-1">
+                  El tour aparecerá en la página del destino seleccionado
+                </p>
+              </div>
+
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Categoría
@@ -156,21 +191,6 @@ export default function CreateTourPage() {
                 </select>
               </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Ubicación *
-                </label>
-                <input
-                  type="text"
-                  name="location"
-                  value={formData.location}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pm-gold focus:border-transparent"
-                  placeholder="Ej: Cusco, Perú"
-                />
-              </div>
-
               <div className="md:col-span-2">
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Descripción Corta *
@@ -181,9 +201,13 @@ export default function CreateTourPage() {
                   onChange={handleChange}
                   required
                   rows="2"
+                  maxLength="500"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pm-gold focus:border-transparent"
-                  placeholder="Descripción breve del tour (máx. 200 caracteres)"
+                  placeholder="Descripción breve del tour (máx. 500 caracteres)"
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  {formData.short_description.length}/500 caracteres
+                </p>
               </div>
 
               <div className="md:col-span-2">
@@ -388,6 +412,9 @@ export default function CreateTourPage() {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pm-gold focus:border-transparent"
               placeholder="URL de la imagen (ej: https://example.com/image.jpg)"
             />
+            <p className="text-xs text-gray-500 mt-2">
+              Recomendado: Imagen de 1200x800px en formato JPG o PNG
+            </p>
           </div>
 
           {/* Opciones */}

@@ -1,6 +1,5 @@
-
 // =============================================================
-// ARCHIVO: src/App.jsx (ACTUALIZADO CON TODAS LAS RUTAS)
+// ARCHIVO: src/App.jsx (ACTUALIZADO CON RUTAS DE DESTINOS)
 // =============================================================
 
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
@@ -19,9 +18,7 @@ import Register from './pages/Register';
 
 // Pages - Destinos
 import DestinosPage from './pages/destinos/page';
-import DestinoDetalle1 from './pages/destinos/1/page';
-import DestinoDetalle2 from './pages/destinos/2/page';
-import DestinoDetalle3 from './pages/destinos/3/page';
+import DestinoToursPage from './pages/destinos/DestinoToursPage'; // ← Página genérica
 
 // Pages - Tours
 import ToursList from './pages/ToursList';
@@ -58,6 +55,7 @@ import CreateTourPage from './pages/admin/tours/CreateTourPage';
 import UsersListPage from './pages/admin/users/UsersListPage';
 import BookingsListPage from './pages/admin/bookings/BookingsListPage';
 import BookingsStatsPage from './pages/admin/stats/BookingsStatsPage';
+
 // Protected Route Component
 const ProtectedRoute = ({ children, requireAdmin = false }) => {
   const { isAuthenticated, user } = useAuthStore();
@@ -124,14 +122,9 @@ function App() {
             } 
           />
 
-          {/* Destinos */}
+          {/* Destinos - Usando la página genérica con parámetros */}
           <Route path="/destinos" element={<DestinosPage />} />
-          <Route path="/destinos/cusco" element={<DestinoDetalle1 />} />
-          <Route path="/destinos/arequipa" element={<DestinoDetalle2 />} />
-          <Route path="/destinos/puno" element={<DestinoDetalle3 />} />
-          <Route path="/destinos/ica" element={<DestinoDetalle1 />} />
-          <Route path="/destinos/huaraz" element={<DestinoDetalle2 />} />
-          <Route path="/destinos/manu" element={<DestinoDetalle3 />} />
+          <Route path="/destinos/:destino" element={<DestinoToursPage />} />
 
           {/* Tours/Paquetes */}
           <Route path="/tours" element={<ToursList />} />
