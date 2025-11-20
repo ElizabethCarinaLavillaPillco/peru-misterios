@@ -1,5 +1,5 @@
 // =============================================================
-// ARCHIVO: src/App.jsx (ACTUALIZADO CON RUTAS DE DESTINOS)
+// ARCHIVO: src/App.jsx (CORREGIDO)
 // =============================================================
 
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
@@ -18,7 +18,7 @@ import Register from './pages/Register';
 
 // Pages - Destinos
 import DestinosPage from './pages/destinos/page';
-import DestinoToursPage from './pages/destinos/DestinoToursPage'; // ← Página genérica
+import DestinoToursPage from './pages/destinos/DestinoToursPage';
 
 // Pages - Tours
 import ToursList from './pages/ToursList';
@@ -55,6 +55,10 @@ import CreateTourPage from './pages/admin/tours/CreateTourPage';
 import UsersListPage from './pages/admin/users/UsersListPage';
 import BookingsListPage from './pages/admin/bookings/BookingsListPage';
 import BookingsStatsPage from './pages/admin/stats/BookingsStatsPage';
+
+// Pages - Admin - Packages
+import PackagesListPage from './pages/admin/packages/PackagesListPage';
+import CreatePackagePage from './pages/admin/packages/CreatePackagePage';
 
 // Protected Route Component
 const ProtectedRoute = ({ children, requireAdmin = false }) => {
@@ -122,7 +126,7 @@ function App() {
             } 
           />
 
-          {/* Destinos - Usando la página genérica con parámetros */}
+          {/* Destinos */}
           <Route path="/destinos" element={<DestinosPage />} />
           <Route path="/destinos/:destino" element={<DestinoToursPage />} />
 
@@ -201,9 +205,18 @@ function App() {
           }
         >
           <Route index element={<AdminDashboard />} />
+          
+          {/* Tours */}
           <Route path="tours" element={<ToursListPage />} />
           <Route path="tours/create" element={<CreateTourPage />} />
           <Route path="tours/:id/edit" element={<CreateTourPage />} />
+          
+          {/* PAQUETES - RUTAS CORRECTAS (DENTRO DE /admin) */}
+          <Route path="packages" element={<PackagesListPage />} />
+          <Route path="packages/create" element={<CreatePackagePage />} />
+          <Route path="packages/:id/edit" element={<CreatePackagePage />} />
+          
+          {/* Users, Bookings, Stats */}
           <Route path="users" element={<UsersListPage />} />
           <Route path="bookings" element={<BookingsListPage />} />
           <Route path="stats" element={<BookingsStatsPage />} />

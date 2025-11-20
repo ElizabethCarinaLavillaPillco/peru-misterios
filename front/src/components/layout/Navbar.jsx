@@ -32,7 +32,7 @@ const navLinks = [
       { name: "Manu", href: "/destinos/manu" },
     ],
   },
-  { name: "Paquetes", href: "/tours?category=paquetes-completos" },
+  { name: "Paquetes", href: "/paquetes" },
   {
     name: "Hoteles",
     href: "/hoteles",

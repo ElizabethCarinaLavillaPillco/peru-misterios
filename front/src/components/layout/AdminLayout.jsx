@@ -1,6 +1,7 @@
 // =============================================================
 // ARCHIVO: src/components/layout/AdminLayout.jsx
 // =============================================================
+import { useState } from 'react';
 
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import useAuthStore from '@/store/authStore';
@@ -8,18 +9,19 @@ import {
   IoHome,
   IoMapOutline,
   IoCalendarOutline,
+  IoCubeOutline,
   IoPersonOutline,
   IoLogOutOutline,
   IoStatsChartOutline,
   IoMenu,
   IoClose
 } from 'react-icons/io5';
-import { useState } from 'react';
 
 const navItems = [
   { name: 'Dashboard', href: '/admin', icon: IoHome },
   { name: 'Tours', href: '/admin/tours', icon: IoMapOutline },
   { name: 'Reservas', href: '/admin/bookings', icon: IoCalendarOutline },
+  { name: 'Paquetes', href: '/admin/packages', icon: IoCubeOutline },
   { name: 'Usuarios', href: '/admin/users', icon: IoPersonOutline },
   { name: 'Estadísticas', href: '/admin/stats', icon: IoStatsChartOutline },
 ];

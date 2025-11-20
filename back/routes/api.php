@@ -14,6 +14,11 @@ Route::get('/tours', [\App\Http\Controllers\API\TourController::class, 'index'])
 Route::get('/tours/{slug}', [\App\Http\Controllers\API\TourController::class, 'show']);
 Route::get('/categories', [\App\Http\Controllers\API\CategoryController::class, 'index']);
 
+// Rutas públicas de paquetes
+Route::get('/packages', [\App\Http\Controllers\API\PackageController::class, 'index']);
+Route::get('/packages/{slug}', [\App\Http\Controllers\API\PackageController::class, 'show']);
+
+
 // Rutas protegidas (requieren autenticación)
 Route::middleware('auth:sanctum')->group(function () {
     
@@ -73,5 +78,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/bookings/stats', [\App\Http\Controllers\API\BookingController::class, 'stats']);
         Route::put('/bookings/{id}/status', [\App\Http\Controllers\API\BookingController::class, 'updateStatus']);
         Route::put('/bookings/{id}/payment', [\App\Http\Controllers\API\BookingController::class, 'updatePaymentStatus']);
+
+        // Gestión de paquetes
+        Route::get('/packages/stats', [\App\Http\Controllers\API\PackageController::class, 'stats']);
+        Route::post('/packages', [\App\Http\Controllers\API\PackageController::class, 'store']);
+        Route::put('/packages/{id}', [\App\Http\Controllers\API\PackageController::class, 'update']);
+        Route::delete('/packages/{id}', [\App\Http\Controllers\API\PackageController::class, 'destroy']);
+    
     });
 });

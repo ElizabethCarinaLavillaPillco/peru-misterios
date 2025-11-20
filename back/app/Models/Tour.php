@@ -65,6 +65,14 @@ class Tour extends Model
         return $this->hasMany(Booking::class);
     }
 
+    // En app/Models/Tour.php
+    public function packages()
+    {
+        return $this->belongsToMany(Package::class, 'package_tour')
+            ->withPivot('day_number', 'order', 'notes')
+            ->withTimestamps();
+    }
+
     public function reviews()
     {
         return $this->hasMany(Review::class);
