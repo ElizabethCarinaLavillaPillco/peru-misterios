@@ -1,5 +1,5 @@
 // =============================================================
-// ARCHIVO: src/App.jsx (CORREGIDO)
+// src/App.jsx - VERSIÓN FINAL CORREGIDA Y LIMPIA
 // =============================================================
 
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
@@ -23,8 +23,10 @@ import DestinoToursPage from './pages/destinos/DestinoToursPage';
 // Pages - Tours
 import ToursList from './pages/ToursList';
 import TourDetail from './pages/TourDetail';
-import PaquetesPage from './pages/paquetes/page';
-import PaqueteDetallePage from './pages/paquetes/[slug]/page';
+
+// Pages - Paquetes (PÚBLICO)
+import PackagesListPage from './pages/packages/PackagesListPage';
+import PackageDetail from './pages/packages/PackageDetail';
 
 // Pages - Hoteles
 import HotelesPage from './pages/hoteles/page';
@@ -50,17 +52,15 @@ import Dashboard from './pages/mi-cuenta/Dashboard';
 
 // Pages - Admin
 import AdminDashboard from './pages/admin/AdminDashboard';
-import ToursListPage from './pages/admin/tours/ToursListPage';
+import AdminToursListPage from './pages/admin/tours/ToursListPage';
 import CreateTourPage from './pages/admin/tours/CreateTourPage';
+import AdminPackagesListPage from './pages/packages/PackagesListPage';
+import CreatePackagePage from './pages/packages/CreatePackagePage';
 import UsersListPage from './pages/admin/users/UsersListPage';
 import BookingsListPage from './pages/admin/bookings/BookingsListPage';
 import BookingsStatsPage from './pages/admin/stats/BookingsStatsPage';
 
-// Pages - Admin - Packages
-import PackagesListPage from './pages/admin/packages/PackagesListPage';
-import CreatePackagePage from './pages/admin/packages/CreatePackagePage';
-
-// Protected Route Component
+// Protected Route
 const ProtectedRoute = ({ children, requireAdmin = false }) => {
   const { isAuthenticated, user } = useAuthStore();
 
@@ -103,38 +103,27 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Rutas públicas con Layout */}
+        {/* ========================================== */}
+        {/* RUTAS PÚBLICAS CON LAYOUT                  */}
+        {/* ========================================== */}
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
 
           {/* Auth */}
-          <Route 
-            path="/login" 
-            element={
-              <PublicRoute>
-                <Login />
-              </PublicRoute>
-            } 
-          />
-          
-          <Route 
-            path="/register" 
-            element={
-              <PublicRoute>
-                <Register />
-              </PublicRoute>
-            } 
-          />
+          <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+          <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
 
           {/* Destinos */}
           <Route path="/destinos" element={<DestinosPage />} />
           <Route path="/destinos/:destino" element={<DestinoToursPage />} />
 
-          {/* Tours/Paquetes */}
+          {/* Tours */}
           <Route path="/tours" element={<ToursList />} />
           <Route path="/tours/:id" element={<TourDetail />} />
-          <Route path="/paquetes" element={<PaquetesPage />} />
-          <Route path="/paquetes/:slug" element={<PaqueteDetallePage />} />
+
+          {/* Paquetes (PÚBLICO) */}
+          <Route path="/packages" element={<PackagesListPage />} />
+          <Route path="/packages/:id" element={<PackageDetail />} />
 
           {/* Hoteles */}
           <Route path="/hoteles" element={<HotelesPage />} />
@@ -152,72 +141,43 @@ function App() {
 
           {/* Carrito y Pagos */}
           <Route path="/cart" element={<Cart />} />
-          <Route path="/pagos" element={<PagoPage />} />
+          <Route path="/pagos" element={<ProtectedRoute><PagoPage /></ProtectedRoute>} />
 
-          {/* Favoritos (protegida) */}
-          <Route 
-            path="/mis-favoritos" 
-            element={
-              <ProtectedRoute>
-                <MisFavoritosPage />
-              </ProtectedRoute>
-            } 
-          />
+          {/* Favoritos */}
+          <Route path="/mis-favoritos" element={<ProtectedRoute><MisFavoritosPage /></ProtectedRoute>} />
 
-          {/* Mis Reservas (protegida) */}
-          <Route 
-            path="/mis-reservas" 
-            element={
-              <ProtectedRoute>
-                <MyBookings />
-              </ProtectedRoute>
-            } 
-          />
+          {/* Mis Reservas */}
+          <Route path="/mis-reservas" element={<ProtectedRoute><MyBookings /></ProtectedRoute>} />
 
-          {/* Resumen de reserva después del pago */}
-          <Route 
-            path="/resumen-reserva" 
-            element={
-              <ProtectedRoute>
-                <ResumenReservaPage />
-              </ProtectedRoute>
-            } 
-          />
+          {/* Resumen de reserva */}
+          <Route path="/resumen-reserva" element={<ProtectedRoute><ResumenReservaPage /></ProtectedRoute>} />
         </Route>
 
-        {/* Dashboard de cliente (sin Layout) */}
-        <Route 
-          path="/mi-cuenta" 
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          } 
-        />
+        {/* ========================================== */}
+        {/* DASHBOARD DE CLIENTE                       */}
+        {/* ========================================== */}
+        <Route path="/mi-cuenta" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
 
-        {/* Dashboard de admin con AdminLayout */}
-        <Route 
-          path="/admin" 
-          element={
-            <ProtectedRoute requireAdmin>
-              <AdminLayout />
-            </ProtectedRoute>
-          }
-        >
+        {/* ========================================== */}
+        {/* DASHBOARD DE ADMIN                         */}
+        {/* ========================================== */}
+        <Route path="/admin" element={<ProtectedRoute requireAdmin><AdminLayout /></ProtectedRoute>}>
           <Route index element={<AdminDashboard />} />
           
-          {/* Tours */}
-          <Route path="tours" element={<ToursListPage />} />
+          {/* Tours Admin */}
+          <Route path="tours" element={<AdminToursListPage />} />
           <Route path="tours/create" element={<CreateTourPage />} />
           <Route path="tours/:id/edit" element={<CreateTourPage />} />
           
-          {/* PAQUETES - RUTAS CORRECTAS (DENTRO DE /admin) */}
-          <Route path="packages" element={<PackagesListPage />} />
+          {/* Packages Admin */}
+          <Route path="packages" element={<AdminPackagesListPage />} />
           <Route path="packages/create" element={<CreatePackagePage />} />
           <Route path="packages/:id/edit" element={<CreatePackagePage />} />
           
-          {/* Users, Bookings, Stats */}
+          {/* Users Admin */}
           <Route path="users" element={<UsersListPage />} />
+          
+          {/* Bookings Admin */}
           <Route path="bookings" element={<BookingsListPage />} />
           <Route path="stats" element={<BookingsStatsPage />} />
         </Route>

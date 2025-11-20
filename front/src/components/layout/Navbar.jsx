@@ -32,7 +32,10 @@ const navLinks = [
       { name: "Manu", href: "/destinos/manu" },
     ],
   },
-  { name: "Paquetes", href: "/paquetes" },
+  { 
+    name: "Paquetes",  // ← NUEVO
+    href: "/packages"  // ← Apunta a /packages (página pública)
+  },
   {
     name: "Hoteles",
     href: "/hoteles",

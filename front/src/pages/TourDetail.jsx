@@ -22,6 +22,7 @@ import useAuthStore from '@/store/authStore';
 import useCartStore from '@/store/cartStore';
 import useFavoritesStore from '@/store/favoritesStore';
 
+
 export default function TourDetail() {
   const { id } = useParams(); // ← Obtener el parámetro de la URL
   const navigate = useNavigate();
@@ -34,6 +35,7 @@ export default function TourDetail() {
   const [error, setError] = useState(null);
   const [numberOfPeople, setNumberOfPeople] = useState(1);
   const [travelDate, setTravelDate] = useState('');
+  const [selectedDate, setSelectedDate] = useState('');
 
   useEffect(() => {
     // Verificar que tenemos un ID válido
@@ -71,27 +73,27 @@ export default function TourDetail() {
 
   const handleAddToCart = async () => {
     if (!isAuthenticated) {
-      alert('Debes iniciar sesión para reservar');
+      alert('Inicia sesión para reservar');
       navigate('/login');
       return;
     }
-
-    if (!travelDate) {
-      alert('Por favor selecciona una fecha de viaje');
+  
+    if (!selectedDate) {
+      alert('Selecciona una fecha');
       return;
     }
-
+  
     try {
       await addToCart({
         tour_id: tour.id,
-        travel_date: travelDate,
+        travel_date: selectedDate,
         number_of_people: numberOfPeople,
       });
-      alert('Tour agregado al carrito exitosamente');
+      
+      alert('Agregado al carrito');
       navigate('/cart');
     } catch (error) {
-      console.error('Error:', error);
-      alert(error.response?.data?.message || 'Error al agregar al carrito');
+      alert('Error al agregar');
     }
   };
 
@@ -400,6 +402,27 @@ export default function TourDetail() {
                     {tour.difficulty_level === 'difficult' && '⛰️ Difícil'}
                   </span>
                 </div>
+              </div>
+
+              <div className="sidebar sticky top-24">
+                <h3>Reserva Ahora</h3>
+                
+                <input
+                  type="date"
+                  value={selectedDate}
+                  onChange={(e) => setSelectedDate(e.target.value)}
+                  min={new Date().toISOString().split('T')[0]}
+                />
+                
+                <div className="quantity-selector">
+                  <button onClick={() => setNumberOfPeople(Math.max(1, numberOfPeople - 1))}>-</button>
+                  <input type="number" value={numberOfPeople} />
+                  <button onClick={() => setNumberOfPeople(numberOfPeople + 1)}>+</button>
+                </div>
+                
+                <button onClick={handleAddToCart}>
+                  Agregar al Carrito
+                </button>
               </div>
             </div>
           </div>
