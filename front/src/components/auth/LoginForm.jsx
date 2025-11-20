@@ -284,7 +284,9 @@ export default function LoginForm() {
             </p>
             <p className="flex items-center">
               <span className="inline-block w-16 font-semibold">Cliente:</span>
-              <span className="text-gray-600">Registra tu cuenta →</span>
+              <span className="text-gray-600">cliente@example.com</span>
+              <span className="mx-1">/</span>
+              <code className="bg-white px-2 py-1 rounded">password123</code>
             </p>
           </div>
         </div>
