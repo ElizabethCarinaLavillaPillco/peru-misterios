@@ -1,5 +1,5 @@
 // =============================================================
-// ARCHIVO: src/pages/TourDetail.jsx (CORREGIDO)
+// src/pages/TourDetail.jsx (LIMPIO - SIN DUPLICADOS)
 // =============================================================
 
 import { useState, useEffect } from 'react';
@@ -8,10 +8,8 @@ import {
   IoCalendarOutline, 
   IoLocationOutline, 
   IoPeopleOutline,
-  IoTimeOutline,
   IoCheckmarkCircle,
   IoCloseCircle,
-  IoStarOutline,
   IoHeart,
   IoHeartOutline,
   IoCart,
@@ -22,9 +20,8 @@ import useAuthStore from '@/store/authStore';
 import useCartStore from '@/store/cartStore';
 import useFavoritesStore from '@/store/favoritesStore';
 
-
 export default function TourDetail() {
-  const { id } = useParams(); // ← Obtener el parámetro de la URL
+  const { id } = useParams();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuthStore();
   const { addToCart } = useCartStore();
@@ -34,11 +31,10 @@ export default function TourDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [numberOfPeople, setNumberOfPeople] = useState(1);
-  const [travelDate, setTravelDate] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
+  const [adding, setAdding] = useState(false);
 
   useEffect(() => {
-    // Verificar que tenemos un ID válido
     if (!id) {
       setError('ID de tour no válido');
       setLoading(false);
@@ -52,11 +48,7 @@ export default function TourDetail() {
       setLoading(true);
       setError(null);
       
-      console.log('Cargando tour con ID:', id); // Debug
-      
       const response = await api.get(`/tours/${id}`);
-      
-      console.log('Respuesta del tour:', response.data); // Debug
       
       if (response.data.success) {
         setTour(response.data.data);
@@ -64,7 +56,7 @@ export default function TourDetail() {
         setError('Tour no encontrado');
       }
     } catch (error) {
-      console.error('Error al cargar tour:', error);
+      console.error('Error:', error);
       setError(error.response?.data?.message || 'Error al cargar el tour');
     } finally {
       setLoading(false);
@@ -84,22 +76,25 @@ export default function TourDetail() {
     }
   
     try {
+      setAdding(true);
       await addToCart({
         tour_id: tour.id,
         travel_date: selectedDate,
         number_of_people: numberOfPeople,
       });
       
-      alert('Agregado al carrito');
+      alert('¡Agregado al carrito!');
       navigate('/cart');
     } catch (error) {
-      alert('Error al agregar');
+      alert(error.response?.data?.message || 'Error al agregar');
+    } finally {
+      setAdding(false);
     }
   };
 
   const handleToggleFavorite = async () => {
     if (!isAuthenticated) {
-      alert('Debes iniciar sesión para agregar favoritos');
+      alert('Inicia sesión para agregar favoritos');
       navigate('/login');
       return;
     }
@@ -111,51 +106,31 @@ export default function TourDetail() {
     }
   };
 
-  // Estados de carga y error
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-pm-gold mx-auto mb-4"></div>
-          <p className="text-gray-600">Cargando tour...</p>
-        </div>
+        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-pm-gold"></div>
       </div>
     );
   }
 
   if (error || !tour) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center max-w-md mx-auto px-4">
-          <div className="inline-flex items-center justify-center w-24 h-24 bg-red-100 rounded-full mb-6">
-            <IoCloseCircle size={48} className="text-red-500" />
-          </div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            Tour no encontrado
-          </h2>
-          <p className="text-gray-600 mb-8">
-            {error || 'El tour que buscas no existe o ha sido eliminado.'}
-          </p>
-          <div className="flex gap-4 justify-center">
-            <button
-              onClick={() => navigate(-1)}
-              className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-semibold"
-            >
-              Volver
-            </button>
-            <button
-              onClick={() => navigate('/tours')}
-              className="px-6 py-3 bg-pm-gold text-white rounded-lg hover:bg-pm-gold/90 font-semibold"
-            >
-              Ver todos los tours
-            </button>
-          </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <IoCloseCircle size={64} className="text-red-500 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Tour no encontrado</h2>
+          <button
+            onClick={() => navigate('/tours')}
+            className="px-6 py-3 bg-pm-gold text-white rounded-lg hover:bg-pm-gold/90 font-semibold"
+          >
+            Ver todos los tours
+          </button>
         </div>
       </div>
     );
   }
 
-  // Fecha mínima (mañana)
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   const minDate = tomorrow.toISOString().split('T')[0];
@@ -168,7 +143,6 @@ export default function TourDetail() {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4">
-        {/* Botón volver */}
         <button
           onClick={() => navigate(-1)}
           className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
@@ -189,7 +163,7 @@ export default function TourDetail() {
               />
               {tour.is_featured && (
                 <div className="absolute top-4 left-4 bg-pm-gold text-black px-4 py-2 rounded-full text-sm font-bold">
-                  ⭐ Tour Destacado
+                  ⭐ Destacado
                 </div>
               )}
               {tour.discount_price && (
@@ -201,19 +175,14 @@ export default function TourDetail() {
 
             {/* Info del Tour */}
             <div className="bg-white rounded-2xl shadow-lg p-6">
-              {/* Categoría */}
               {tour.category?.name && (
-                <span className="inline-block text-sm text-pm-gold font-semibold uppercase tracking-wide mb-2">
+                <span className="inline-block text-sm text-pm-gold font-semibold uppercase mb-2">
                   {tour.category.name}
                 </span>
               )}
 
-              {/* Título */}
-              <h1 className="text-4xl font-bold text-gray-900 mb-4">
-                {tour.name}
-              </h1>
+              <h1 className="text-4xl font-bold text-gray-900 mb-4">{tour.name}</h1>
 
-              {/* Info rápida */}
               <div className="flex flex-wrap gap-6 text-gray-600 mb-6 pb-6 border-b">
                 <div className="flex items-center gap-2">
                   <IoLocationOutline size={20} className="text-pm-gold" />
@@ -221,7 +190,7 @@ export default function TourDetail() {
                 </div>
                 <div className="flex items-center gap-2">
                   <IoCalendarOutline size={20} className="text-pm-gold" />
-                  <span>{tour.duration_days} Días / {tour.duration_nights} Noches</span>
+                  <span>{tour.duration_days}D / {tour.duration_nights}N</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <IoPeopleOutline size={20} className="text-pm-gold" />
@@ -229,7 +198,6 @@ export default function TourDetail() {
                 </div>
               </div>
 
-              {/* Descripción */}
               <div className="mb-6">
                 <h2 className="text-2xl font-bold text-gray-900 mb-3">Descripción</h2>
                 <p className="text-gray-700 leading-relaxed whitespace-pre-line">
@@ -239,12 +207,9 @@ export default function TourDetail() {
 
               {/* Incluye / No Incluye */}
               <div className="grid md:grid-cols-2 gap-6 mb-6">
-                {/* Incluye */}
                 {tour.included && tour.included.length > 0 && (
                   <div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-3">
-                      ✅ Incluye
-                    </h3>
+                    <h3 className="text-xl font-bold text-gray-900 mb-3">✅ Incluye</h3>
                     <ul className="space-y-2">
                       {tour.included.map((item, index) => (
                         <li key={index} className="flex items-start gap-2 text-gray-700">
@@ -256,12 +221,9 @@ export default function TourDetail() {
                   </div>
                 )}
 
-                {/* No Incluye */}
                 {tour.not_included && tour.not_included.length > 0 && (
                   <div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-3">
-                      ❌ No Incluye
-                    </h3>
+                    <h3 className="text-xl font-bold text-gray-900 mb-3">❌ No Incluye</h3>
                     <ul className="space-y-2">
                       {tour.not_included.map((item, index) => (
                         <li key={index} className="flex items-start gap-2 text-gray-700">
@@ -293,7 +255,7 @@ export default function TourDetail() {
             </div>
           </div>
 
-          {/* Sidebar de Reserva */}
+          {/* Sidebar de Reserva - UNA SOLA VEZ */}
           <div className="lg:col-span-1">
             <div className="sticky top-24 bg-white rounded-2xl shadow-lg p-6 space-y-6">
               {/* Precio */}
@@ -315,24 +277,24 @@ export default function TourDetail() {
                 <span className="text-gray-600">por persona</span>
               </div>
 
-              {/* Formulario de Reserva */}
+              {/* Formulario */}
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Fecha de viaje
+                    Fecha de viaje *
                   </label>
                   <input
                     type="date"
-                    value={travelDate}
-                    onChange={(e) => setTravelDate(e.target.value)}
+                    value={selectedDate}
+                    onChange={(e) => setSelectedDate(e.target.value)}
                     min={minDate}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pm-gold focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pm-gold"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Número de personas
+                    Número de personas *
                   </label>
                   <input
                     type="number"
@@ -340,14 +302,14 @@ export default function TourDetail() {
                     onChange={(e) => setNumberOfPeople(Math.max(1, Math.min(tour.max_group_size, parseInt(e.target.value) || 1)))}
                     min="1"
                     max={tour.max_group_size}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pm-gold focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pm-gold"
                   />
                   <p className="text-xs text-gray-500 mt-1">
                     Máximo {tour.max_group_size} personas
                   </p>
                 </div>
 
-                {/* Resumen de precio */}
+                {/* Resumen */}
                 <div className="space-y-2 py-4 border-t border-b">
                   <div className="flex justify-between text-gray-700">
                     <span>Subtotal ({numberOfPeople} persona{numberOfPeople > 1 ? 's' : ''})</span>
@@ -363,14 +325,23 @@ export default function TourDetail() {
                   </div>
                 </div>
 
-                {/* Botones de acción */}
+                {/* Botones */}
                 <button
                   onClick={handleAddToCart}
-                  disabled={!travelDate}
-                  className="w-full flex items-center justify-center gap-2 bg-pm-gold text-white py-4 rounded-lg hover:bg-pm-gold/90 transition-colors font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={!selectedDate || adding}
+                  className="w-full flex items-center justify-center gap-2 bg-pm-gold text-white py-4 rounded-lg hover:bg-pm-gold/90 transition-colors font-bold disabled:opacity-50"
                 >
-                  <IoCart size={24} />
-                  Reservar Ahora
+                  {adding ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      Agregando...
+                    </>
+                  ) : (
+                    <>
+                      <IoCart size={24} />
+                      Reservar Ahora
+                    </>
+                  )}
                 </button>
 
                 <button
@@ -391,7 +362,6 @@ export default function TourDetail() {
                 </button>
               </div>
 
-              {/* Dificultad */}
               <div className="pt-4 border-t">
                 <div className="flex items-center justify-between">
                   <span className="text-gray-700 font-semibold">Dificultad:</span>
@@ -402,27 +372,6 @@ export default function TourDetail() {
                     {tour.difficulty_level === 'difficult' && '⛰️ Difícil'}
                   </span>
                 </div>
-              </div>
-
-              <div className="sidebar sticky top-24">
-                <h3>Reserva Ahora</h3>
-                
-                <input
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  min={new Date().toISOString().split('T')[0]}
-                />
-                
-                <div className="quantity-selector">
-                  <button onClick={() => setNumberOfPeople(Math.max(1, numberOfPeople - 1))}>-</button>
-                  <input type="number" value={numberOfPeople} />
-                  <button onClick={() => setNumberOfPeople(numberOfPeople + 1)}>+</button>
-                </div>
-                
-                <button onClick={handleAddToCart}>
-                  Agregar al Carrito
-                </button>
               </div>
             </div>
           </div>

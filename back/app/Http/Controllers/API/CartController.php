@@ -13,11 +13,39 @@ class CartController extends Controller
 {
     public function index(Request $request)
     {
-        $cartItems = CartItem::with('tour')
+        try {
+            $cartItems = CartItem::with(['tour' => function($query) {
+                $query->select('id', 'name', 'slug', 'featured_image', 'price', 'discount_price', 'duration_days', 'duration_nights');
+            }])
             ->where('user_id', $request->user()->id)
-            ->get();
+            ->get()
+            ->map(function($item) {
+                $tour = $item->tour;
+                $pricePerPerson = $tour->discount_price ?? $tour->price;
+                $subtotal = $pricePerPerson * $item->number_of_people;
 
-        return response()->json($cartItems);
+                return [
+                    'id' => $item->id,
+                    'tour_id' => $item->tour_id,
+                    'tour' => $tour,
+                    'travel_date' => $item->travel_date,
+                    'number_of_people' => $item->number_of_people,
+                    'price_per_person' => $pricePerPerson,
+                    'subtotal' => $subtotal,
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'data' => $cartItems
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al cargar el carrito',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function store(Request $request)
@@ -35,27 +63,65 @@ class CartController extends Controller
             ], 422);
         }
 
-        $cartItem = CartItem::create([
-            'user_id' => $request->user()->id,
-            'tour_id' => $request->tour_id,
-            'travel_date' => $request->travel_date,
-            'number_of_people' => $request->number_of_people,
-        ]);
+        try {
+            $userId = $request->user()->id;
+            
+            // Buscar si ya existe
+            $existingItem = CartItem::where('user_id', $userId)
+                ->where('tour_id', $request->tour_id)
+                ->where('travel_date', $request->travel_date)
+                ->first();
 
-        return response()->json([
-            'success' => true,
-            'data' => $cartItem->load('tour')
-        ], 201);
+            if ($existingItem) {
+                // Si existe, actualizar cantidad
+                $existingItem->number_of_people += $request->number_of_people;
+                $existingItem->save();
+                
+                $cartItem = $existingItem;
+                $message = 'Cantidad actualizada en el carrito';
+            } else {
+                // Si no existe, crear nuevo
+                $cartItem = CartItem::create([
+                    'user_id' => $userId,
+                    'tour_id' => $request->tour_id,
+                    'travel_date' => $request->travel_date,
+                    'number_of_people' => $request->number_of_people,
+                ]);
+                
+                $message = 'Tour agregado al carrito';
+            }
+
+            $cartItem->load('tour');
+            $tour = $cartItem->tour;
+            $pricePerPerson = $tour->discount_price ?? $tour->price;
+            $subtotal = $pricePerPerson * $cartItem->number_of_people;
+
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'data' => [
+                    'id' => $cartItem->id,
+                    'tour_id' => $cartItem->tour_id,
+                    'tour' => $tour,
+                    'travel_date' => $cartItem->travel_date,
+                    'number_of_people' => $cartItem->number_of_people,
+                    'price_per_person' => $pricePerPerson,
+                    'subtotal' => $subtotal,
+                ]
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al agregar al carrito',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function update(Request $request, $id)
     {
-        $cartItem = CartItem::where('user_id', $request->user()->id)
-            ->findOrFail($id);
-
         $validator = Validator::make($request->all(), [
-            'number_of_people' => 'sometimes|integer|min:1',
-            'travel_date' => 'sometimes|date|after:today',
+            'number_of_people' => 'required|integer|min:1',
         ]);
 
         if ($validator->fails()) {
@@ -65,43 +131,77 @@ class CartController extends Controller
             ], 422);
         }
 
-        $cartItem->update($request->only(['number_of_people', 'travel_date']));
+        try {
+            $cartItem = CartItem::where('user_id', $request->user()->id)
+                ->findOrFail($id);
 
-        return response()->json([
-            'success' => true,
-            'data' => $cartItem->load('tour')
-        ]);
+            $cartItem->update([
+                'number_of_people' => $request->number_of_people
+            ]);
+
+            $cartItem->load('tour');
+            $tour = $cartItem->tour;
+            $pricePerPerson = $tour->discount_price ?? $tour->price;
+            $subtotal = $pricePerPerson * $cartItem->number_of_people;
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Cantidad actualizada',
+                'data' => [
+                    'id' => $cartItem->id,
+                    'tour_id' => $cartItem->tour_id,
+                    'tour' => $tour,
+                    'travel_date' => $cartItem->travel_date,
+                    'number_of_people' => $cartItem->number_of_people,
+                    'price_per_person' => $pricePerPerson,
+                    'subtotal' => $subtotal,
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function destroy(Request $request, $id)
     {
-        $cartItem = CartItem::where('user_id', $request->user()->id)
-            ->findOrFail($id);
+        try {
+            $cartItem = CartItem::where('user_id', $request->user()->id)
+                ->findOrFail($id);
 
-        $cartItem->delete();
+            $cartItem->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Item eliminado del carrito'
-        ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Item eliminado del carrito'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al eliminar',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function clear(Request $request)
     {
-        CartItem::where('user_id', $request->user()->id)->delete();
+        try {
+            CartItem::where('user_id', $request->user()->id)->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Carrito vaciado'
-        ]);
-    }
-
-    public function checkout(Request $request)
-    {
-        // Implementar lógica de checkout
-        return response()->json([
-            'success' => true,
-            'message' => 'Checkout en desarrollo'
-        ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Carrito vaciado'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al vaciar carrito',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

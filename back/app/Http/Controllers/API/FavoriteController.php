@@ -1,7 +1,5 @@
 <?php
-// =============================================================
-// ARCHIVO: app/Http/Controllers/API/FavoriteController.php
-// =============================================================
+// app/Http/Controllers/API/FavoriteController.php
 
 namespace App\Http\Controllers\API;
 
@@ -9,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Favorite;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 
 class FavoriteController extends Controller
 {
@@ -18,20 +17,33 @@ class FavoriteController extends Controller
     public function index(Request $request)
     {
         try {
-            $favorites = Favorite::with('tour')
-                ->where('user_id', $request->user()->id)
-                ->latest()
-                ->get();
+            $user = $request->user();
+            
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Usuario no autenticado'
+                ], 401);
+            }
+
+            $favorites = Favorite::with(['tour' => function($query) {
+                $query->select('id', 'name', 'slug', 'featured_image', 'price', 'discount_price', 'duration_days', 'duration_nights', 'location');
+            }])
+            ->where('user_id', $user->id)
+            ->latest()
+            ->get();
 
             return response()->json([
                 'success' => true,
                 'data' => $favorites
             ]);
         } catch (\Exception $e) {
+            Log::error('Error cargando favoritos: ' . $e->getMessage());
+            
             return response()->json([
                 'success' => false,
                 'message' => 'Error al cargar favoritos',
-                'error' => $e->getMessage()
+                'error' => config('app.debug') ? $e->getMessage() : 'Error interno'
             ], 500);
         }
     }
@@ -42,7 +54,7 @@ class FavoriteController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'tour_id' => 'required|exists:tours,id',
+            'tour_id' => 'required|integer|exists:tours,id',
         ]);
 
         if ($validator->fails()) {
@@ -53,8 +65,17 @@ class FavoriteController extends Controller
         }
 
         try {
+            $user = $request->user();
+            
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Usuario no autenticado'
+                ], 401);
+            }
+
             // Verificar si ya existe
-            $existing = Favorite::where('user_id', $request->user()->id)
+            $existing = Favorite::where('user_id', $user->id)
                 ->where('tour_id', $request->tour_id)
                 ->first();
 
@@ -66,20 +87,26 @@ class FavoriteController extends Controller
             }
 
             $favorite = Favorite::create([
-                'user_id' => $request->user()->id,
+                'user_id' => $user->id,
                 'tour_id' => $request->tour_id,
             ]);
+
+            $favorite->load(['tour' => function($query) {
+                $query->select('id', 'name', 'slug', 'featured_image', 'price', 'discount_price');
+            }]);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Tour agregado a favoritos',
-                'data' => $favorite->load('tour')
+                'data' => $favorite
             ], 201);
         } catch (\Exception $e) {
+            Log::error('Error agregando favorito: ' . $e->getMessage());
+            
             return response()->json([
                 'success' => false,
                 'message' => 'Error al agregar favorito',
-                'error' => $e->getMessage()
+                'error' => config('app.debug') ? $e->getMessage() : 'Error interno'
             ], 500);
         }
     }
@@ -90,7 +117,16 @@ class FavoriteController extends Controller
     public function destroy(Request $request, $tourId)
     {
         try {
-            $favorite = Favorite::where('user_id', $request->user()->id)
+            $user = $request->user();
+            
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Usuario no autenticado'
+                ], 401);
+            }
+
+            $favorite = Favorite::where('user_id', $user->id)
                 ->where('tour_id', $tourId)
                 ->first();
 
@@ -108,10 +144,12 @@ class FavoriteController extends Controller
                 'message' => 'Tour eliminado de favoritos'
             ]);
         } catch (\Exception $e) {
+            Log::error('Error eliminando favorito: ' . $e->getMessage());
+            
             return response()->json([
                 'success' => false,
                 'message' => 'Error al eliminar favorito',
-                'error' => $e->getMessage()
+                'error' => config('app.debug') ? $e->getMessage() : 'Error interno'
             ], 500);
         }
     }
@@ -121,14 +159,30 @@ class FavoriteController extends Controller
      */
     public function check(Request $request, $tourId)
     {
-        $isFavorite = Favorite::where('user_id', $request->user()->id)
-            ->where('tour_id', $tourId)
-            ->exists();
+        try {
+            $user = $request->user();
+            
+            if (!$user) {
+                return response()->json([
+                    'success' => true,
+                    'is_favorite' => false
+                ]);
+            }
 
-        return response()->json([
-            'success' => true,
-            'is_favorite' => $isFavorite
-        ]);
+            $isFavorite = Favorite::where('user_id', $user->id)
+                ->where('tour_id', $tourId)
+                ->exists();
+
+            return response()->json([
+                'success' => true,
+                'is_favorite' => $isFavorite
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => true,
+                'is_favorite' => false
+            ]);
+        }
     }
 
     /**
@@ -136,13 +190,31 @@ class FavoriteController extends Controller
      */
     public function ids(Request $request)
     {
-        $favoriteIds = Favorite::where('user_id', $request->user()->id)
-            ->pluck('tour_id')
-            ->toArray();
+        try {
+            $user = $request->user();
+            
+            if (!$user) {
+                return response()->json([
+                    'success' => true,
+                    'data' => []
+                ]);
+            }
 
-        return response()->json([
-            'success' => true,
-            'data' => $favoriteIds
-        ]);
+            $favoriteIds = Favorite::where('user_id', $user->id)
+                ->pluck('tour_id')
+                ->toArray();
+
+            return response()->json([
+                'success' => true,
+                'data' => $favoriteIds
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error obteniendo IDs de favoritos: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => true,
+                'data' => []
+            ]);
+        }
     }
 }
