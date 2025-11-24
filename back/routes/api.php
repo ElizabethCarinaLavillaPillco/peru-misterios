@@ -7,28 +7,37 @@ use App\Http\Controllers\API\BlogController;
 use App\Http\Controllers\API\ActivityController;
 use Illuminate\Support\Facades\Route;
 
-// Rutas públicas
+// ========================================
+// RUTAS PÚBLICAS
+// ========================================
+
+// Auth
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-// Rutas públicas de tours
+// Tours públicos
 Route::get('/tours', [\App\Http\Controllers\API\TourController::class, 'index']);
 Route::get('/tours/{slug}', [\App\Http\Controllers\API\TourController::class, 'show']);
-Route::get('/categories', [\App\Http\Controllers\API\CategoryController::class, 'index']);
 
-// Rutas públicas de paquetes
+// Paquetes públicos
 Route::get('/packages', [\App\Http\Controllers\API\PackageController::class, 'index']);
 Route::get('/packages/{slug}', [\App\Http\Controllers\API\PackageController::class, 'show']);
 
-// Rutas públicas de blogs
-Route::get('/blogs', [BlogController::class, 'index']);
-Route::get('/blogs/{slug}', [BlogController::class, 'show']);
-
+// Actividades públicas
 Route::get('/activities', [ActivityController::class, 'index']);
 Route::get('/activities/{slug}', [ActivityController::class, 'show']);
 
+// Blogs públicos
+Route::get('/blogs', [BlogController::class, 'index']);
+Route::get('/blogs/{slug}', [BlogController::class, 'show']);
 
-// Rutas protegidas (requieren autenticación)
+// Categorías
+Route::get('/categories', [\App\Http\Controllers\API\CategoryController::class, 'index']);
+
+// ========================================
+// RUTAS PROTEGIDAS (AUTH)
+// ========================================
+
 Route::middleware('auth:sanctum')->group(function () {
 
     // Autenticación
@@ -67,8 +76,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/bookings/{id}/payment', [\App\Http\Controllers\API\BookingController::class, 'updatePaymentStatus']);
     Route::put('/bookings/{id}/status', [\App\Http\Controllers\API\BookingController::class, 'updateStatus']);
 
+    // ========================================
+    // RUTAS DE ADMINISTRADOR
+    // ========================================
 
-    // Rutas de administrador
     Route::middleware(['role:admin'])->prefix('admin')->group(function () {
 
         // Gestión de usuarios
@@ -79,9 +90,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/users/{id}', [UserController::class, 'update']);
         Route::delete('/users/{id}', [UserController::class, 'destroy']);
 
-        // Gestión de tours
+        // Gestión de tours - ORDEN IMPORTANTE: stats primero, luego {id}
         Route::get('/tours/stats', [\App\Http\Controllers\API\TourController::class, 'stats']);
         Route::post('/tours', [\App\Http\Controllers\API\TourController::class, 'store']);
+        Route::get('/tours/{id}', [\App\Http\Controllers\API\TourController::class, 'showById']);
         Route::put('/tours/{id}', [\App\Http\Controllers\API\TourController::class, 'update']);
         Route::delete('/tours/{id}', [\App\Http\Controllers\API\TourController::class, 'destroy']);
 
@@ -95,20 +107,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/bookings/{id}/payment', [\App\Http\Controllers\API\BookingController::class, 'updatePaymentStatus']);
 
         // Gestión de paquetes
-        Route::get('/packages', [\App\Http\Controllers\API\PackageController::class, 'index']); // Lista para admin
         Route::get('/packages/stats', [\App\Http\Controllers\API\PackageController::class, 'stats']);
+        Route::get('/packages', [\App\Http\Controllers\API\PackageController::class, 'index']);
+        Route::get('/packages/{id}', [\App\Http\Controllers\API\PackageController::class, 'showById']);
         Route::post('/packages', [\App\Http\Controllers\API\PackageController::class, 'store']);
         Route::put('/packages/{id}', [\App\Http\Controllers\API\PackageController::class, 'update']);
         Route::delete('/packages/{id}', [\App\Http\Controllers\API\PackageController::class, 'destroy']);
-
-
-        // Gestión de blogs
-        Route::get('/blogs', [BlogController::class, 'adminIndex']);
-        Route::get('/blogs/{id}', [BlogController::class, 'showById']); // <- AGREGAR ESTA
-        Route::get('/blogs/stats', [BlogController::class, 'stats']);
-        Route::post('/blogs', [BlogController::class, 'store']);
-        Route::put('/blogs/{id}', [BlogController::class, 'update']);
-        Route::delete('/blogs/{id}', [BlogController::class, 'destroy']);
 
         // Gestión de actividades
         Route::get('/activities/stats', [ActivityController::class, 'stats']);
@@ -117,5 +121,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/activities', [ActivityController::class, 'store']);
         Route::put('/activities/{id}', [ActivityController::class, 'update']);
         Route::delete('/activities/{id}', [ActivityController::class, 'destroy']);
+
+        // Gestión de blogs
+        Route::get('/blogs/stats', [BlogController::class, 'stats']);
+        Route::get('/blogs', [BlogController::class, 'adminIndex']);
+        Route::get('/blogs/{id}', [BlogController::class, 'showById']);
+        Route::post('/blogs', [BlogController::class, 'store']);
+        Route::put('/blogs/{id}', [BlogController::class, 'update']);
+        Route::delete('/blogs/{id}', [BlogController::class, 'destroy']);
     });
 });

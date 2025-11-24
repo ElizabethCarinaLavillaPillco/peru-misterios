@@ -14,6 +14,7 @@ import {
   IoLogOutOutline,
   IoStatsChartOutline,
   IoDocumentTextOutline,
+  IoCompassOutline,
   IoMenu,
   IoClose
 } from 'react-icons/io5';
@@ -23,6 +24,7 @@ const navItems = [
   { name: 'Tours', href: '/admin/tours', icon: IoMapOutline },
   { name: 'Reservas', href: '/admin/bookings', icon: IoCalendarOutline },
   { name: 'Paquetes', href: '/admin/packages', icon: IoCubeOutline },
+  { name: 'Actividades', href: '/admin/activities', icon: IoCompassOutline },
   { name: 'Blogs', href: '/admin/blogs', icon: IoDocumentTextOutline },
   { name: 'Usuarios', href: '/admin/users', icon: IoPersonOutline },
   { name: 'Estadísticas', href: '/admin/stats', icon: IoStatsChartOutline },
