@@ -74,7 +74,11 @@ export default function PackagesListPage() {
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {packages.map(pkg => (
-                <PackageCard key={pkg.id} package={pkg} onClick={() => navigate(`/packages/${pkg.id}`)} />
+                <PackageCard
+                  key={pkg.id}
+                  pkgData={pkg}
+                  onClick={() => navigate(`/packages/${pkg.id}`)}
+                />
               ))}
             </div>
           </>
@@ -84,12 +88,13 @@ export default function PackagesListPage() {
   );
 }
 
-function PackageCard({ package: pkg, onClick }) {
+function PackageCard({ pkgData, onClick }) {
+  const pkg = pkgData;
   const finalPrice = pkg.discount_price || pkg.price;
   const hasDiscount = pkg.discount_price && pkg.discount_price < pkg.price;
 
   return (
-    <div 
+    <div
       onClick={onClick}
       className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all cursor-pointer group"
     >
@@ -100,7 +105,7 @@ function PackageCard({ package: pkg, onClick }) {
           alt={pkg.name}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
         />
-        
+
         {hasDiscount && (
           <div className="absolute top-3 left-3 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">
             {Math.round(((pkg.price - pkg.discount_price) / pkg.price) * 100)}% OFF
@@ -156,12 +161,12 @@ function PackageCard({ package: pkg, onClick }) {
                   ${pkg.price}
                 </span>
                 <p className="text-2xl font-bold text-pm-gold">
-                  ${pkg.discount_price}
+                  ${finalPrice}
                 </p>
               </>
             ) : (
               <p className="text-2xl font-bold text-gray-900">
-                ${pkg.price}
+                ${finalPrice}
               </p>
             )}
             <span className="text-xs text-gray-500">por persona</span>

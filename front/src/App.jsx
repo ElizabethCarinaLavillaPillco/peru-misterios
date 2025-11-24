@@ -55,10 +55,15 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminToursListPage from './pages/admin/tours/ToursListPage';
 import CreateTourPage from './pages/admin/tours/CreateTourPage';
 import AdminPackagesListPage from './pages/packages/PackagesListPage';
-import CreatePackagePage from './pages/packages/CreatePackagePage';
+import CreatePackagePage from './pages/admin/packages/CreatePackagePage';
 import UsersListPage from './pages/admin/users/UsersListPage';
 import BookingsListPage from './pages/admin/bookings/BookingsListPage';
 import BookingsStatsPage from './pages/admin/stats/BookingsStatsPage';
+
+import AdminPackagesListPage from './pages/admin/packages/AdminPackagesListPage';
+import CreatePackagePage from './pages/admin/packages/CreatePackagePage';
+import AdminBlogsListPage from './pages/admin/blogs/AdminBlogsListPage';
+import CreateBlogPage from './pages/admin/blogs/CreateBlogPage';
 
 // Protected Route
 const ProtectedRoute = ({ children, requireAdmin = false }) => {
@@ -176,6 +181,11 @@ function App() {
 		<Route path="packages" element={<AdminPackagesListPage />} />
 		<Route path="packages/create" element={<CreatePackagePage />} />
 		<Route path="packages/:id/edit" element={<CreatePackagePage />} />
+
+		{/* Blogs Admin - NUEVO */}
+		<Route path="blogs" element={<AdminBlogsListPage />} />
+		<Route path="blogs/create" element={<CreateBlogPage />} />
+		<Route path="blogs/:id/edit" element={<CreateBlogPage />} />
 
           {/* Users Admin */}
           <Route path="users" element={<UsersListPage />} />

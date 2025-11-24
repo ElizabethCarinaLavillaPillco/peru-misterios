@@ -5,7 +5,7 @@ import { useState } from 'react';
 
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import useAuthStore from '@/store/authStore';
-import { 
+import {
   IoHome,
   IoMapOutline,
   IoCalendarOutline,
@@ -13,6 +13,7 @@ import {
   IoPersonOutline,
   IoLogOutOutline,
   IoStatsChartOutline,
+  IoDocumentTextOutline,
   IoMenu,
   IoClose
 } from 'react-icons/io5';
@@ -22,6 +23,7 @@ const navItems = [
   { name: 'Tours', href: '/admin/tours', icon: IoMapOutline },
   { name: 'Reservas', href: '/admin/bookings', icon: IoCalendarOutline },
   { name: 'Paquetes', href: '/admin/packages', icon: IoCubeOutline },
+  { name: 'Blogs', href: '/admin/blogs', icon: IoDocumentTextOutline },
   { name: 'Usuarios', href: '/admin/users', icon: IoPersonOutline },
   { name: 'Estadísticas', href: '/admin/stats', icon: IoStatsChartOutline },
 ];
@@ -35,6 +37,7 @@ export default function AdminLayout() {
   const handleLogout = () => {
     if (confirm('¿Estás seguro de cerrar sesión?')) {
       logout();
+      navigate('/login'); // redirige al login tras cerrar sesión
     }
   };
 
@@ -52,7 +55,7 @@ export default function AdminLayout() {
               >
                 {sidebarOpen ? <IoClose size={24} /> : <IoMenu size={24} />}
               </button>
-              
+
               <Link to="/" className="flex items-center gap-2">
                 <img
                   src="/logo-peru-mysterious-blanco.png"
@@ -67,8 +70,8 @@ export default function AdminLayout() {
 
             {/* User Menu */}
             <div className="flex items-center gap-4">
-              <Link 
-                to="/" 
+              <Link
+                to="/"
                 className="text-white/70 hover:text-white text-sm hidden md:block"
               >
                 Ver Sitio
@@ -97,9 +100,9 @@ export default function AdminLayout() {
           <nav className="p-4 space-y-1">
             {navItems.map((item) => {
               const Icon = item.icon;
-              const isActive = location.pathname === item.href || 
+              const isActive = location.pathname === item.href ||
                              (item.href !== '/admin' && location.pathname.startsWith(item.href));
-              
+
               return (
                 <Link
                   key={item.href}
@@ -121,16 +124,16 @@ export default function AdminLayout() {
         {/* Sidebar Mobile */}
         {sidebarOpen && (
           <aside className="lg:hidden fixed inset-0 z-40 bg-black/50" onClick={() => setSidebarOpen(false)}>
-            <div 
+            <div
               className="bg-white w-64 h-full shadow-xl"
               onClick={(e) => e.stopPropagation()}
             >
               <nav className="p-4 space-y-1">
                 {navItems.map((item) => {
                   const Icon = item.icon;
-                  const isActive = location.pathname === item.href || 
+                  const isActive = location.pathname === item.href ||
                                  (item.href !== '/admin' && location.pathname.startsWith(item.href));
-                  
+
                   return (
                     <Link
                       key={item.href}

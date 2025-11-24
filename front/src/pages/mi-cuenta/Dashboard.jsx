@@ -72,6 +72,26 @@ export default function Dashboard() {
     }
   };
 
+  const handleDownloadReceipt = async (bookingId, bookingCode) => {
+	try {
+	  const response = await api.get(`/bookings/${bookingId}/receipt`, {
+		responseType: 'blob'
+	  });
+
+	  const url = window.URL.createObjectURL(new Blob([response.data]));
+	  const link = document.createElement('a');
+	  link.href = url;
+	  link.setAttribute('download', `comprobante-${bookingCode}.pdf`);
+	  document.body.appendChild(link);
+	  link.click();
+	  link.remove();
+	  window.URL.revokeObjectURL(url);
+	} catch (error) {
+	  console.error('Error descargando comprobante:', error);
+	  alert('Error al descargar el comprobante. Intenta nuevamente.');
+	}
+  };
+
   const handleLogout = () => {
     if (confirm('¿Estás seguro de cerrar sesión?')) {
       logout();
@@ -338,6 +358,15 @@ export default function Dashboard() {
                     >
                       Ver Detalles
                     </Link>
+					{booking.payment_status === 'paid' && (
+					<button
+						onClick={() => handleDownloadReceipt(booking.id, booking.booking_code)}
+						className="px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors font-semibold text-sm flex items-center justify-center gap-1"
+					>
+						<IoDownloadOutline size={16} />
+						Comprobante
+					</button>
+					)}
                   </div>
                 </div>
               ))}
