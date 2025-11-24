@@ -35,7 +35,11 @@ import HotelesLimaPage from './pages/hoteles/lima/page';
 
 // Pages - Actividades
 import ActividadesPage from './pages/actividades/page';
+import ActivityDetailPage from './pages/actividades/ActivityDetailPage';
+
 import BlogPage from './pages/actividades/blog/page';
+import BlogDetailPage from './pages/actividades/blog/BlogDetailPage';
+
 
 // Pages - Institucionales
 import NosotrosPage from './pages/nosotros/page';
@@ -54,16 +58,16 @@ import Dashboard from './pages/mi-cuenta/Dashboard';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminToursListPage from './pages/admin/tours/ToursListPage';
 import CreateTourPage from './pages/admin/tours/CreateTourPage';
-import AdminPackagesListPage from './pages/packages/PackagesListPage';
-import CreatePackagePage from './pages/admin/packages/CreatePackagePage';
 import UsersListPage from './pages/admin/users/UsersListPage';
 import BookingsListPage from './pages/admin/bookings/BookingsListPage';
 import BookingsStatsPage from './pages/admin/stats/BookingsStatsPage';
-
 import AdminPackagesListPage from './pages/admin/packages/AdminPackagesListPage';
 import CreatePackagePage from './pages/admin/packages/CreatePackagePage';
 import AdminBlogsListPage from './pages/admin/blogs/AdminBlogsListPage';
 import CreateBlogPage from './pages/admin/blogs/CreateBlogPage';
+import AdminActivitiesListPage from './pages/admin/activities/AdminActivitiesListPage';
+import CreateActivityPage from './pages/admin/activities/CreateActivityPage';
+
 
 // Protected Route
 const ProtectedRoute = ({ children, requireAdmin = false }) => {
@@ -137,7 +141,10 @@ function App() {
 
           {/* Actividades y Blog */}
           <Route path="/actividades" element={<ActividadesPage />} />
-          <Route path="/blog" element={<BlogPage />} />
+		  <Route path="/actividades/:slug" element={<ActivityDetailPage />} />
+
+		  <Route path="/blog" element={<BlogPage />} />
+  		  <Route path="/blog/:slug" element={<BlogDetailPage />} />
 
           {/* Institucionales */}
           <Route path="/nosotros" element={<NosotrosPage />} />
@@ -186,6 +193,11 @@ function App() {
 		<Route path="blogs" element={<AdminBlogsListPage />} />
 		<Route path="blogs/create" element={<CreateBlogPage />} />
 		<Route path="blogs/:id/edit" element={<CreateBlogPage />} />
+
+		{/* Activities Admin */}
+		<Route path="activities" element={<AdminActivitiesListPage />} />
+		<Route path="activities/create" element={<CreateActivityPage />} />
+		<Route path="activities/:id/edit" element={<CreateActivityPage />} />
 
           {/* Users Admin */}
           <Route path="users" element={<UsersListPage />} />

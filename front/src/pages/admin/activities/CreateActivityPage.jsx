@@ -1,4 +1,4 @@
-// src/pages/admin/tours/CreateTourPage.jsx
+// src/pages/admin/activities/CreateActivityPage.jsx
 
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -10,7 +10,7 @@ import {
   IoCloseCircle,
 } from 'react-icons/io5';
 
-export default function CreateTourPage() {
+export default function CreateActivityPage() {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEditing = !!id;
@@ -19,8 +19,7 @@ export default function CreateTourPage() {
   const [categories, setCategories] = useState([]);
 
   const [formData, setFormData] = useState({
-    name: '',
-    slug: '',
+    title: '',
     category_id: '',
     short_description: '',
     description: '',
@@ -28,15 +27,18 @@ export default function CreateTourPage() {
     gallery_images: [],
     location: '',
     price: '',
-    discount_price: '',
-    duration_days: '',
-    duration_nights: '',
+    duration_hours: '',
+    duration_text: '',
     difficulty_level: 'moderate',
+    min_age: '',
     max_group_size: '',
     included: [],
     not_included: [],
-    itinerary: [],
     requirements: [],
+    recommendations: [],
+    available_days: [],
+    start_time: '',
+    end_time: '',
     is_featured: false,
     is_active: true,
   });
@@ -46,11 +48,22 @@ export default function CreateTourPage() {
   const [includedInput, setIncludedInput] = useState('');
   const [notIncludedInput, setNotIncludedInput] = useState('');
   const [requirementInput, setRequirementInput] = useState('');
+  const [recommendationInput, setRecommendationInput] = useState('');
+
+  const daysOfWeek = [
+    { value: 'monday', label: 'Lunes' },
+    { value: 'tuesday', label: 'Martes' },
+    { value: 'wednesday', label: 'Miércoles' },
+    { value: 'thursday', label: 'Jueves' },
+    { value: 'friday', label: 'Viernes' },
+    { value: 'saturday', label: 'Sábado' },
+    { value: 'sunday', label: 'Domingo' },
+  ];
 
   useEffect(() => {
     loadCategories();
     if (isEditing) {
-      loadTour();
+      loadActivity();
     }
   }, [id]);
 
@@ -63,52 +76,59 @@ export default function CreateTourPage() {
     }
   };
 
-	// Cambiar solo la función loadTour:
+  const loadActivity = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get(`/admin/activities/${id}`);
+      const activity = response.data.data || response.data;
 
-	const loadTour = async () => {
-		try {
-		setLoading(true);
-		// Usar la ruta de admin en lugar de la pública
-		const response = await api.get(`/admin/tours/${id}`);
-		const tour = response.data.data || response.data;
-
-		// Llenar el formulario con los datos del tour
-		setFormData({
-			name: tour.name || '',
-			slug: tour.slug || '',
-			category_id: tour.category_id || '',
-			short_description: tour.short_description || '',
-			description: tour.description || '',
-			featured_image: tour.featured_image || '',
-			gallery_images: Array.isArray(tour.gallery_images) ? tour.gallery_images : [],
-			location: tour.location || '',
-			price: tour.price || '',
-			discount_price: tour.discount_price || '',
-			duration_days: tour.duration_days || '',
-			duration_nights: tour.duration_nights || '',
-			difficulty_level: tour.difficulty_level || 'moderate',
-			max_group_size: tour.max_group_size || '',
-			included: Array.isArray(tour.included) ? tour.included : [],
-			not_included: Array.isArray(tour.not_included) ? tour.not_included : [],
-			itinerary: Array.isArray(tour.itinerary) ? tour.itinerary : [],
-			requirements: Array.isArray(tour.requirements) ? tour.requirements : [],
-			is_featured: tour.is_featured || false,
-			is_active: tour.is_active !== undefined ? tour.is_active : true,
-		});
-		} catch (error) {
-		console.error('Error al cargar tour:', error);
-		alert('Error al cargar el tour');
-		navigate('/admin/tours');
-		} finally {
-		setLoading(false);
-		}
-	};
+      setFormData({
+        title: activity.title || '',
+        category_id: activity.category_id || '',
+        short_description: activity.short_description || '',
+        description: activity.description || '',
+        featured_image: activity.featured_image || '',
+        gallery_images: activity.gallery_images || [],
+        location: activity.location || '',
+        price: activity.price || '',
+        duration_hours: activity.duration_hours || '',
+        duration_text: activity.duration_text || '',
+        difficulty_level: activity.difficulty_level || 'moderate',
+        min_age: activity.min_age || '',
+        max_group_size: activity.max_group_size || '',
+        included: activity.included || [],
+        not_included: activity.not_included || [],
+        requirements: activity.requirements || [],
+        recommendations: activity.recommendations || [],
+        available_days: activity.available_days || [],
+        start_time: activity.start_time || '',
+        end_time: activity.end_time || '',
+        is_featured: activity.is_featured || false,
+        is_active: activity.is_active !== undefined ? activity.is_active : true,
+      });
+    } catch (error) {
+      console.error('Error al cargar actividad:', error);
+      alert('Error al cargar la actividad');
+      navigate('/admin/activities');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
+    }));
+  };
+
+  const handleDayToggle = (day) => {
+    setFormData((prev) => ({
+      ...prev,
+      available_days: prev.available_days.includes(day)
+        ? prev.available_days.filter((d) => d !== day)
+        : [...prev.available_days, day],
     }));
   };
 
@@ -133,9 +153,8 @@ export default function CreateTourPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validaciones básicas
-    if (!formData.name.trim()) {
-      alert('El nombre es obligatorio');
+    if (!formData.title.trim()) {
+      alert('El título es obligatorio');
       return;
     }
 
@@ -154,16 +173,6 @@ export default function CreateTourPage() {
       return;
     }
 
-    if (!formData.duration_days || parseInt(formData.duration_days) < 1) {
-      alert('La duración debe ser al menos 1 día');
-      return;
-    }
-
-    if (!formData.max_group_size || parseInt(formData.max_group_size) < 1) {
-      alert('El tamaño del grupo debe ser al menos 1 persona');
-      return;
-    }
-
     try {
       setLoading(true);
 
@@ -171,24 +180,23 @@ export default function CreateTourPage() {
         ...formData,
         category_id: formData.category_id || null,
         price: parseFloat(formData.price),
-        discount_price: formData.discount_price ? parseFloat(formData.discount_price) : null,
-        duration_days: parseInt(formData.duration_days),
-        duration_nights: parseInt(formData.duration_nights || 0),
-        max_group_size: parseInt(formData.max_group_size),
+        duration_hours: formData.duration_hours ? parseInt(formData.duration_hours) : null,
+        min_age: formData.min_age ? parseInt(formData.min_age) : null,
+        max_group_size: formData.max_group_size ? parseInt(formData.max_group_size) : null,
       };
 
       if (isEditing) {
-        await api.put(`/admin/tours/${id}`, dataToSend);
-        alert('Tour actualizado exitosamente');
+        await api.put(`/admin/activities/${id}`, dataToSend);
+        alert('Actividad actualizada exitosamente');
       } else {
-        await api.post('/admin/tours', dataToSend);
-        alert('Tour creado exitosamente');
+        await api.post('/admin/activities', dataToSend);
+        alert('Actividad creada exitosamente');
       }
 
-      navigate('/admin/tours');
+      navigate('/admin/activities');
     } catch (error) {
-      console.error('Error al guardar tour:', error);
-      alert(error.response?.data?.message || 'Error al guardar el tour');
+      console.error('Error al guardar actividad:', error);
+      alert(error.response?.data?.message || 'Error al guardar la actividad');
     } finally {
       setLoading(false);
     }
@@ -207,20 +215,20 @@ export default function CreateTourPage() {
       {/* Header */}
       <div className="mb-8">
         <button
-          onClick={() => navigate('/admin/tours')}
+          onClick={() => navigate('/admin/activities')}
           className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4"
         >
           <IoArrowBackOutline size={20} />
-          Volver a Tours
+          Volver a Actividades
         </button>
 
         <h1 className="text-3xl font-bold text-gray-900">
-          {isEditing ? 'Editar Tour' : 'Crear Nuevo Tour'}
+          {isEditing ? 'Editar Actividad' : 'Crear Nueva Actividad'}
         </h1>
         <p className="text-gray-600 mt-1">
           {isEditing
-            ? 'Actualiza la información del tour'
-            : 'Completa la información para crear un nuevo tour'}
+            ? 'Actualiza la información de la actividad'
+            : 'Completa la información para crear una nueva actividad'}
         </p>
       </div>
 
@@ -231,20 +239,20 @@ export default function CreateTourPage() {
           <h2 className="text-xl font-bold text-gray-900 mb-4">Información Básica</h2>
 
           <div className="space-y-4">
-            {/* Nombre del Tour */}
+            {/* Título */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Nombre del Tour <span className="text-red-500">*</span>
+                Título <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
-                name="name"
-                value={formData.name}
+                name="title"
+                value={formData.title}
                 onChange={handleChange}
                 required
                 maxLength={255}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pm-gold focus:border-transparent"
-                placeholder="Ej: Tour Machu Picchu 2D/1N"
+                placeholder="Título de la actividad"
               />
             </div>
 
@@ -299,7 +307,7 @@ export default function CreateTourPage() {
                 rows={2}
                 maxLength={500}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pm-gold focus:border-transparent"
-                placeholder="Breve descripción del tour (máximo 500 caracteres)"
+                placeholder="Breve descripción (máximo 500 caracteres)"
               />
               <p className="text-xs text-gray-500 mt-1">
                 {formData.short_description.length}/500 caracteres
@@ -318,7 +326,7 @@ export default function CreateTourPage() {
                 required
                 rows={8}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pm-gold focus:border-transparent"
-                placeholder="Descripción detallada del tour"
+                placeholder="Descripción detallada de la actividad"
               />
             </div>
           </div>
@@ -406,9 +414,9 @@ export default function CreateTourPage() {
           </div>
         </div>
 
-        {/* Detalles del Tour */}
+        {/* Detalles de la Actividad */}
         <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Detalles del Tour</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Detalles de la Actividad</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Precio */}
@@ -426,57 +434,6 @@ export default function CreateTourPage() {
                 step="0.01"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pm-gold focus:border-transparent"
                 placeholder="0.00"
-              />
-            </div>
-
-            {/* Precio con descuento */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Precio con Descuento (USD)
-              </label>
-              <input
-                type="number"
-                name="discount_price"
-                value={formData.discount_price}
-                onChange={handleChange}
-                min="0"
-                step="0.01"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pm-gold focus:border-transparent"
-                placeholder="0.00"
-              />
-            </div>
-
-            {/* Duración días */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Duración (Días) <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="number"
-                name="duration_days"
-                value={formData.duration_days}
-                onChange={handleChange}
-                required
-                min="1"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pm-gold focus:border-transparent"
-                placeholder="Ej: 2"
-              />
-            </div>
-
-            {/* Duración noches */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Duración (Noches) <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="number"
-                name="duration_nights"
-                value={formData.duration_nights}
-                onChange={handleChange}
-                required
-                min="0"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pm-gold focus:border-transparent"
-                placeholder="Ej: 1"
               />
             </div>
 
@@ -499,31 +456,126 @@ export default function CreateTourPage() {
               </select>
             </div>
 
+            {/* Duración en horas */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Duración (horas)
+              </label>
+              <input
+                type="number"
+                name="duration_hours"
+                value={formData.duration_hours}
+                onChange={handleChange}
+                min="1"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pm-gold focus:border-transparent"
+                placeholder="Ej: 4"
+              />
+            </div>
+
+            {/* Duración texto */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Duración (texto)
+              </label>
+              <input
+                type="text"
+                name="duration_text"
+                value={formData.duration_text}
+                onChange={handleChange}
+                maxLength={100}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pm-gold focus:border-transparent"
+                placeholder="Ej: Medio día, 2-3 horas"
+              />
+            </div>
+
+            {/* Edad mínima */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Edad Mínima
+              </label>
+              <input
+                type="number"
+                name="min_age"
+                value={formData.min_age}
+                onChange={handleChange}
+                min="0"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pm-gold focus:border-transparent"
+                placeholder="Ej: 12"
+              />
+            </div>
+
             {/* Tamaño máximo del grupo */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Tamaño Máximo del Grupo <span className="text-red-500">*</span>
+                Tamaño Máximo del Grupo
               </label>
               <input
                 type="number"
                 name="max_group_size"
                 value={formData.max_group_size}
                 onChange={handleChange}
-                required
                 min="1"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pm-gold focus:border-transparent"
                 placeholder="Ej: 15"
               />
             </div>
+
+            {/* Hora de inicio */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Hora de Inicio
+              </label>
+              <input
+                type="time"
+                name="start_time"
+                value={formData.start_time}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pm-gold focus:border-transparent"
+              />
+            </div>
+
+            {/* Hora de fin */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Hora de Fin
+              </label>
+              <input
+                type="time"
+                name="end_time"
+                value={formData.end_time}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pm-gold focus:border-transparent"
+              />
+            </div>
           </div>
         </div>
 
-        {/* Qué Incluye / No Incluye */}
+        {/* Días Disponibles */}
         <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Qué Incluye / No Incluye</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Días Disponibles</h2>
+          <div className="flex flex-wrap gap-2">
+            {daysOfWeek.map((day) => (
+              <button
+                key={day.value}
+                type="button"
+                onClick={() => handleDayToggle(day.value)}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  formData.available_days.includes(day.value)
+                    ? 'bg-pm-gold text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                {day.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Qué Incluye */}
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Qué Incluye</h2>
 
           <div className="space-y-4">
-            {/* Incluye */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Agregar Item Incluido
@@ -564,7 +616,6 @@ export default function CreateTourPage() {
               )}
             </div>
 
-            {/* No Incluye */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Agregar Item NO Incluido
@@ -607,48 +658,90 @@ export default function CreateTourPage() {
           </div>
         </div>
 
-        {/* Requisitos */}
+        {/* Requisitos y Recomendaciones */}
         <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Requisitos</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Requisitos y Recomendaciones</h2>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Agregar Requisito
-            </label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={requirementInput}
-                onChange={(e) => setRequirementInput(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addToArray('requirements', requirementInput, setRequirementInput))}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pm-gold focus:border-transparent"
-                placeholder="Ej: Buen estado físico"
-              />
-              <button
-                type="button"
-                onClick={() => addToArray('requirements', requirementInput, setRequirementInput)}
-                className="px-4 py-2 bg-pm-gold hover:bg-yellow-600 text-white rounded-lg transition-colors"
-              >
-                <IoAddCircleOutline size={20} />
-              </button>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Agregar Requisito
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={requirementInput}
+                  onChange={(e) => setRequirementInput(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addToArray('requirements', requirementInput, setRequirementInput))}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pm-gold focus:border-transparent"
+                  placeholder="Ej: Buen estado físico"
+                />
+                <button
+                  type="button"
+                  onClick={() => addToArray('requirements', requirementInput, setRequirementInput)}
+                  className="px-4 py-2 bg-pm-gold hover:bg-yellow-600 text-white rounded-lg transition-colors"
+                >
+                  <IoAddCircleOutline size={20} />
+                </button>
+              </div>
+
+              {formData.requirements.length > 0 && (
+                <ul className="mt-2 space-y-2">
+                  {formData.requirements.map((item, idx) => (
+                    <li key={idx} className="flex items-center justify-between bg-yellow-50 px-4 py-2 rounded-lg">
+                      <span className="text-yellow-800">• {item}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeFromArray('requirements', idx)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <IoCloseCircle size={20} />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
 
-            {formData.requirements.length > 0 && (
-              <ul className="mt-2 space-y-2">
-                {formData.requirements.map((item, idx) => (
-                  <li key={idx} className="flex items-center justify-between bg-yellow-50 px-4 py-2 rounded-lg">
-                    <span className="text-yellow-800">• {item}</span>
-                    <button
-                      type="button"
-                      onClick={() => removeFromArray('requirements', idx)}
-                      className="text-red-600 hover:text-red-700"
-                    >
-                      <IoCloseCircle size={20} />
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Agregar Recomendación
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={recommendationInput}
+                  onChange={(e) => setRecommendationInput(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addToArray('recommendations', recommendationInput, setRecommendationInput))}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pm-gold focus:border-transparent"
+                  placeholder="Ej: Llevar protector solar"
+                />
+                <button
+                  type="button"
+                  onClick={() => addToArray('recommendations', recommendationInput, setRecommendationInput)}
+                  className="px-4 py-2 bg-pm-gold hover:bg-yellow-600 text-white rounded-lg transition-colors"
+                >
+                  <IoAddCircleOutline size={20} />
+                </button>
+              </div>
+
+              {formData.recommendations.length > 0 && (
+                <ul className="mt-2 space-y-2">
+                  {formData.recommendations.map((item, idx) => (
+                    <li key={idx} className="flex items-center justify-between bg-blue-50 px-4 py-2 rounded-lg">
+                      <span className="text-blue-800">💡 {item}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeFromArray('recommendations', idx)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <IoCloseCircle size={20} />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
         </div>
 
@@ -666,7 +759,7 @@ export default function CreateTourPage() {
                 className="w-5 h-5 text-pm-gold border-gray-300 rounded focus:ring-pm-gold"
               />
               <span className="text-sm font-medium text-gray-700">
-                Marcar como tour destacado
+                Marcar como actividad destacada
               </span>
             </label>
 
@@ -679,7 +772,7 @@ export default function CreateTourPage() {
                 className="w-5 h-5 text-pm-gold border-gray-300 rounded focus:ring-pm-gold"
               />
               <span className="text-sm font-medium text-gray-700">
-                Tour activo (visible para el público)
+                Actividad activa (visible para el público)
               </span>
             </label>
           </div>
@@ -689,7 +782,7 @@ export default function CreateTourPage() {
         <div className="flex items-center justify-end gap-4">
           <button
             type="button"
-            onClick={() => navigate('/admin/tours')}
+            onClick={() => navigate('/admin/activities')}
             className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
           >
             Cancelar
@@ -707,7 +800,7 @@ export default function CreateTourPage() {
             ) : (
               <>
                 <IoSaveOutline size={20} />
-                {isEditing ? 'Actualizar Tour' : 'Crear Tour'}
+                {isEditing ? 'Actualizar Actividad' : 'Crear Actividad'}
               </>
             )}
           </button>

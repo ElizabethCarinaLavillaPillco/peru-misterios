@@ -30,9 +30,10 @@ const navLinks = [
       { name: "Ica", href: "/destinos/ica" },
       { name: "Huaraz", href: "/destinos/huaraz" },
       { name: "Manu", href: "/destinos/manu" },
+	  { name: "Ver todos los tours", href: "/tours" },
     ],
   },
-  { 
+  {
     name: "Paquetes",  // ← NUEVO
     href: "/packages"  // ← Apunta a /packages (página pública)
   },
@@ -183,12 +184,12 @@ export default function Navbar() {
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const shellRef = useRef(null);
   const firstMobileBtnRef = useRef(null);
-  
+
   const location = useLocation();
   const { isAuthenticated, user } = useAuthStore();
   const { items } = useCartStore();
   const { favorites } = useFavoritesStore();
-  
+
   const cartItemCount = items.length;
   const favoritesCount = favorites.length;
 
@@ -265,7 +266,7 @@ export default function Navbar() {
                     {(() => {
                       const isActive =
                         typeof link.href === "string" &&
-                        (location.pathname === link.href || 
+                        (location.pathname === link.href ||
                          location.pathname.startsWith(link.href + "/"));
 
                       return (
@@ -322,39 +323,39 @@ export default function Navbar() {
                   </span>
                 )}
               </Link>
-            
-              <button 
-                title="Cambiar idioma" 
+
+              <button
+                title="Cambiar idioma"
                 className="p-2 rounded-full transition-colors hover:bg-white/10 text-white icon-outline"
               >
                 <IoEarth size={20} />
               </button>
-              
-              <button 
-                title="Modo Claro/Oscuro" 
+
+              <button
+                title="Modo Claro/Oscuro"
                 className="p-2 rounded-full transition-colors hover:bg-white/10 text-white icon-outline"
               >
                 <IoSunnyOutline size={20} />
               </button>
-              
+
               {isAuthenticated ? (
-                <Link 
-                  to={user?.role === 'admin' ? '/admin' : '/mi-cuenta'} 
-                  title="Mi Cuenta" 
+                <Link
+                  to={user?.role === 'admin' ? '/admin' : '/mi-cuenta'}
+                  title="Mi Cuenta"
                   className="p-2 rounded-full transition-colors hover:bg-white/10 text-white icon-outline"
                 >
                   <IoPersonCircleOutline size={22} />
                 </Link>
               ) : (
-                <Link 
-                  to="/login" 
-                  title="Login" 
+                <Link
+                  to="/login"
+                  title="Login"
                   className="p-2 rounded-full transition-colors hover:bg-white/10 text-white icon-outline"
                 >
                   <IoPersonCircleOutline size={22} />
                 </Link>
               )}
-              
+
               <div className="relative">
                 <button
                   title="Más opciones"
@@ -485,9 +486,9 @@ export default function Navbar() {
 
         <nav className="mt-6">
           {navLinks.map((item) => (
-            <MobileNavItem 
-              key={item.name} 
-              item={item} 
+            <MobileNavItem
+              key={item.name}
+              item={item}
               onClose={() => setIsMenuOpen(false)}
             />
           ))}

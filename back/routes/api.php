@@ -4,6 +4,7 @@
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\BlogController;
+use App\Http\Controllers\API\ActivityController;
 use Illuminate\Support\Facades\Route;
 
 // Rutas públicas
@@ -22,6 +23,9 @@ Route::get('/packages/{slug}', [\App\Http\Controllers\API\PackageController::cla
 // Rutas públicas de blogs
 Route::get('/blogs', [BlogController::class, 'index']);
 Route::get('/blogs/{slug}', [BlogController::class, 'show']);
+
+Route::get('/activities', [ActivityController::class, 'index']);
+Route::get('/activities/{slug}', [ActivityController::class, 'show']);
 
 
 // Rutas protegidas (requieren autenticación)
@@ -105,5 +109,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/blogs', [BlogController::class, 'store']);
         Route::put('/blogs/{id}', [BlogController::class, 'update']);
         Route::delete('/blogs/{id}', [BlogController::class, 'destroy']);
+
+        // Gestión de actividades
+        Route::get('/activities/stats', [ActivityController::class, 'stats']);
+        Route::get('/activities', [ActivityController::class, 'adminIndex']);
+        Route::get('/activities/{id}', [ActivityController::class, 'showById']);
+        Route::post('/activities', [ActivityController::class, 'store']);
+        Route::put('/activities/{id}', [ActivityController::class, 'update']);
+        Route::delete('/activities/{id}', [ActivityController::class, 'destroy']);
     });
 });
