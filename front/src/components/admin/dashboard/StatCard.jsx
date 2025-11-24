@@ -1,38 +1,33 @@
 // src/components/admin/dashboard/StatCard.jsx
 
-import React from 'react';
+import { IoTrendingUpOutline, IoTrendingDownOutline } from 'react-icons/io5';
 
-const StatCard = ({ icon, title, value, change, changeType }) => {
-  const isPositive = changeType === 'positive';
-  const changeColor = isPositive ? 'text-green-500' : 'text-red-500';
-  const arrowIcon = isPositive ? '↑' : '↓';
+export default function StatCard({ icon, title, value, change, type = 'neutral' }) {
+  const getChangeColor = () => {
+    if (type === 'positive') return 'text-green-600';
+    if (type === 'negative') return 'text-red-600';
+    return 'text-gray-600';
+  };
 
-  // Ajuste para el tipo neutral (Soporte Pendiente)
-  if (changeType === 'neutral') {
-    return (
-      <div className="bg-white p-4 rounded-lg shadow-md flex items-center">
-        <div className="text-3xl text-gray-400 mr-4">{icon}</div>
-        <div>
-          <h3 className="text-sm font-medium text-gray-500">{title}</h3>
-          <p className="text-2xl font-bold">{value}</p>
-          <p className="text-xs text-gray-400">{change}</p>
-        </div>
-      </div>
-    );
-  }
+  const getIcon = () => {
+    if (type === 'positive') return <IoTrendingUpOutline className="w-4 h-4" />;
+    if (type === 'negative') return <IoTrendingDownOutline className="w-4 h-4" />;
+    return null;
+  };
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow-md flex items-center">
-      <div className="text-3xl text-gray-400 mr-4">{icon}</div>
-      <div>
-        <h3 className="text-sm font-medium text-gray-500">{title}</h3>
-        <p className="text-2xl font-bold">{value}</p>
-        <p className={`text-xs ${changeColor}`}>
-          <span>{arrowIcon}</span> {change}
-        </p>
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+      <div className="flex items-center justify-between mb-4">
+        <div className="p-3 bg-blue-100 rounded-lg text-blue-600">
+          {icon}
+        </div>
+      </div>
+      <h3 className="text-sm font-medium text-gray-600 mb-1">{title}</h3>
+      <p className="text-2xl font-bold text-gray-900 mb-2">{value}</p>
+      <div className={`flex items-center gap-1 text-sm ${getChangeColor()}`}>
+        {getIcon()}
+        <span>{change}</span>
       </div>
     </div>
   );
-};
-
-export default StatCard;
+}

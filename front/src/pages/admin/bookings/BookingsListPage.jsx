@@ -1,20 +1,18 @@
-
-// =============================================================
-// ARCHIVO: src/pages/admin/bookings/BookingsListPage.jsx
-// =============================================================
+// src/pages/admin/bookings/BookingsListPage.jsx
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '@/store/authStore';
 import api from '@/lib/api';
-import { 
+import {
   IoSearch,
   IoCalendarOutline,
   IoPersonOutline,
   IoCheckmarkCircle,
   IoTimeOutline,
   IoCloseCircle,
-  IoCashOutline
+  IoCashOutline,
+  IoDownloadOutline
 } from 'react-icons/io5';
 
 export default function BookingsListPage() {
@@ -37,9 +35,11 @@ export default function BookingsListPage() {
   const loadBookings = async () => {
     try {
       const response = await api.get('/admin/bookings');
-      setBookings(response.data.data.data || []);
+      const bookingsData = response.data?.data?.data || response.data?.data || [];
+      setBookings(Array.isArray(bookingsData) ? bookingsData : []);
     } catch (error) {
       console.error('Error cargando reservas:', error);
+      setBookings([]);
     } finally {
       setLoading(false);
     }
@@ -48,7 +48,7 @@ export default function BookingsListPage() {
   const updateStatus = async (bookingId, newStatus) => {
     try {
       await api.put(`/admin/bookings/${bookingId}/status`, { status: newStatus });
-      setBookings(bookings.map(b => 
+      setBookings(bookings.map(b =>
         b.id === bookingId ? { ...b, status: newStatus } : b
       ));
       alert('Estado actualizado exitosamente');
@@ -61,7 +61,7 @@ export default function BookingsListPage() {
   const updatePaymentStatus = async (bookingId, newStatus) => {
     try {
       await api.put(`/admin/bookings/${bookingId}/payment`, { payment_status: newStatus });
-      setBookings(bookings.map(b => 
+      setBookings(bookings.map(b =>
         b.id === bookingId ? { ...b, payment_status: newStatus } : b
       ));
       alert('Estado de pago actualizado');
@@ -71,9 +71,30 @@ export default function BookingsListPage() {
     }
   };
 
+  const handleDownloadReceipt = async (bookingId, bookingCode) => {
+    try {
+      const response = await api.get(`/bookings/${bookingId}/receipt`, {
+        responseType: 'blob'
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `comprobante-${bookingCode}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error descargando comprobante:', error);
+      alert('Error al descargar el comprobante. Intenta nuevamente.');
+    }
+  };
+
   const filteredBookings = bookings.filter(b => {
-    const matchesSearch = b.booking_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         b.user?.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = (b.booking_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         b.booking_code?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         b.user?.name?.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesStatus = filterStatus === 'all' || b.status === filterStatus;
     const matchesPayment = filterPayment === 'all' || b.payment_status === filterPayment;
     return matchesSearch && matchesStatus && matchesPayment;
@@ -105,7 +126,7 @@ export default function BookingsListPage() {
               <IoSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
               <input
                 type="text"
-                placeholder="Buscar por número o cliente..."
+                placeholder="Buscar por código o cliente..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pm-gold focus:border-transparent"
@@ -145,7 +166,7 @@ export default function BookingsListPage() {
               {searchTerm ? 'No se encontraron reservas' : 'No hay reservas'}
             </h3>
             <p className="text-gray-600">
-              {searchTerm 
+              {searchTerm
                 ? 'Intenta con otros términos de búsqueda'
                 : 'Las reservas de clientes aparecerán aquí'
               }
@@ -153,81 +174,107 @@ export default function BookingsListPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            {filteredBookings.map((booking) => (
-              <div key={booking.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                  {/* Info Principal */}
-                  <div className="flex-1">
-                    <div className="flex items-start gap-4">
-                      <div className="w-20 h-20 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
-                        <img
-                          src={booking.tour?.featured_image || 'https://via.placeholder.com/100'}
-                          alt={booking.tour?.name}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-bold text-gray-900">
-                            {booking.booking_number}
-                          </h3>
-                          <StatusBadge status={booking.status} />
-                          <PaymentBadge status={booking.payment_status} />
+            {filteredBookings.map((booking) => {
+              // Convertir total a número de forma segura
+              const totalAmount = parseFloat(booking.total) || 0;
+
+              return (
+                <div key={booking.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                    {/* Info Principal */}
+                    <div className="flex-1">
+                      <div className="flex items-start gap-4">
+                        <div className="w-20 h-20 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
+                          <img
+                            src={booking.tour?.featured_image || 'https://via.placeholder.com/100'}
+                            alt={booking.tour?.name || 'Tour'}
+                            className="w-full h-full object-cover"
+                          />
                         </div>
-                        
-                        <p className="text-gray-700 font-medium mb-2">
-                          {booking.tour?.name}
-                        </p>
-                        
-                        <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-                          <div className="flex items-center gap-1">
-                            <IoPersonOutline size={16} />
-                            <span>{booking.user?.name}</span>
+
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1 flex-wrap">
+                            <h3 className="font-bold text-gray-900 font-mono text-sm">
+                              {booking.booking_code || booking.booking_number || 'N/A'}
+                            </h3>
+                            <StatusBadge status={booking.status} />
+                            <PaymentBadge status={booking.payment_status} />
                           </div>
-                          <div className="flex items-center gap-1">
-                            <IoCalendarOutline size={16} />
-                            <span>{new Date(booking.travel_date).toLocaleDateString('es-ES')}</span>
+
+                          <p className="text-gray-700 font-medium mb-2">
+                            {booking.tour?.name || 'Tour sin nombre'}
+                          </p>
+
+                          <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                            <div className="flex items-center gap-1">
+                              <IoPersonOutline size={16} />
+                              <span>{booking.user?.name || 'Usuario'}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <IoCalendarOutline size={16} />
+                              <span>
+                                {booking.travel_date
+                                  ? new Date(booking.travel_date).toLocaleDateString('es-ES')
+                                  : 'Fecha no disponible'
+                                }
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <IoPersonOutline size={16} />
+                              <span>{booking.number_of_people || 0} persona{booking.number_of_people !== 1 ? 's' : ''}</span>
+                            </div>
+                            <div className="flex items-center gap-1 font-semibold text-pm-gold">
+                              <IoCashOutline size={16} />
+                              <span>S/. {totalAmount.toFixed(2)}</span>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-1">
-                            <IoPersonOutline size={16} />
-                            <span>{booking.number_of_people} persona{booking.number_of_people !== 1 ? 's' : ''}</span>
-                          </div>
-                          <div className="flex items-center gap-1 font-semibold text-pm-gold">
-                            <IoCashOutline size={16} />
-                            <span>${booking.total.toFixed(2)}</span>
-                          </div>
+
+                          {booking.payment_method && (
+                            <p className="text-xs text-gray-500 mt-2">
+                              Método: {booking.payment_method}
+                            </p>
+                          )}
                         </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Acciones */}
-                  <div className="flex flex-col gap-2 lg:min-w-[200px]">
-                    <select
-                      value={booking.status}
-                      onChange={(e) => updateStatus(booking.id, e.target.value)}
-                      className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-pm-gold focus:border-transparent"
-                    >
-                      <option value="pending">Pendiente</option>
-                      <option value="confirmed">Confirmada</option>
-                      <option value="completed">Completada</option>
-                      <option value="cancelled">Cancelada</option>
-                    </select>
+                    {/* Acciones */}
+                    <div className="flex flex-col gap-2 lg:min-w-[200px]">
+                      <select
+                        value={booking.status}
+                        onChange={(e) => updateStatus(booking.id, e.target.value)}
+                        className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-pm-gold focus:border-transparent"
+                      >
+                        <option value="pending">Pendiente</option>
+                        <option value="confirmed">Confirmada</option>
+                        <option value="completed">Completada</option>
+                        <option value="cancelled">Cancelada</option>
+                      </select>
 
-                    <select
-                      value={booking.payment_status}
-                      onChange={(e) => updatePaymentStatus(booking.id, e.target.value)}
-                      className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-pm-gold focus:border-transparent"
-                    >
-                      <option value="pending">Pago Pendiente</option>
-                      <option value="paid">Pagado</option>
-                      <option value="refunded">Reembolsado</option>
-                    </select>
+                      <select
+                        value={booking.payment_status}
+                        onChange={(e) => updatePaymentStatus(booking.id, e.target.value)}
+                        className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-pm-gold focus:border-transparent"
+                      >
+                        <option value="pending">Pago Pendiente</option>
+                        <option value="paid">Pagado</option>
+                        <option value="refunded">Reembolsado</option>
+                      </select>
+
+                      {booking.payment_status === 'paid' && (
+                        <button
+                          onClick={() => handleDownloadReceipt(booking.id, booking.booking_code)}
+                          className="flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-semibold"
+                        >
+                          <IoDownloadOutline size={16} />
+                          Comprobante
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

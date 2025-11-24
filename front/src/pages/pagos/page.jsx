@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { PayPalButtons, usePayPalScriptReducer, SCRIPT_LOADING_STATE } from "@paypal/react-paypal-js";
+import { PayPalButtons, usePayPalScriptReducer } from "@paypal/react-paypal-js";
 import useAuthStore from "@/store/authStore";
 import useCartStore from "@/store/cartStore";
 import api from "@/lib/api";
@@ -15,28 +15,36 @@ import {
   IoShieldCheckmark,
   IoLockClosed,
   IoAlertCircle,
-  IoRefresh
+  IoRefresh,
+  IoPhonePortraitOutline
 } from "react-icons/io5";
 
 const paymentMethods = [
-  { 
-    id: "paypal", 
-    label: "PayPal", 
-    icon: IoLogoPaypal, 
+  {
+    id: "paypal",
+    label: "PayPal",
+    icon: IoLogoPaypal,
     active: true,
     description: "Paga de forma segura con tu cuenta PayPal"
   },
-  { 
-    id: "card", 
-    label: "Tarjeta de Crédito/Débito", 
-    icon: IoCardOutline, 
+  {
+    id: "yape_plin",
+    label: "Yape / Plin",
+    icon: IoPhonePortraitOutline,
+    active: true,
+    description: "Pago simulado para pruebas"
+  },
+  {
+    id: "card",
+    label: "Tarjeta de Crédito/Débito",
+    icon: IoCardOutline,
     active: false,
     description: "Próximamente disponible"
   },
-  { 
-    id: "transfer", 
-    label: "Transferencia Bancaria", 
-    icon: IoCashOutline, 
+  {
+    id: "transfer",
+    label: "Transferencia Bancaria",
+    icon: IoCashOutline,
     active: false,
     description: "Próximamente disponible"
   },
@@ -46,10 +54,9 @@ export default function PagoPage() {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuthStore();
   const { items, loadCart, clearCart, getTotals } = useCartStore();
-  
-  // Hook de PayPal para verificar estado del script
-  const [{ isPending, isResolved, isRejected, options }] = usePayPalScriptReducer();
-  
+
+  const [{ isPending, isResolved, isRejected }] = usePayPalScriptReducer();
+
   const [step, setStep] = useState(1);
   const [method, setMethod] = useState("paypal");
   const [loading, setLoading] = useState(true);
@@ -63,22 +70,12 @@ export default function PagoPage() {
     document_number: "",
   });
 
-  // Debug: mostrar estado de PayPal en consola
-  useEffect(() => {
-    console.log("📦 PayPal Script Status:", {
-      isPending,
-      isResolved,
-      isRejected,
-      clientId: options?.["client-id"] ? "Presente" : "Falta"
-    });
-  }, [isPending, isResolved, isRejected, options]);
-
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/login');
       return;
     }
-    
+
     setTravelerData({
       name: user?.name || "",
       email: user?.email || "",
@@ -88,7 +85,7 @@ export default function PagoPage() {
     });
 
     loadCart().then(() => setLoading(false));
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, user, navigate, loadCart]);
 
   const safeItems = Array.isArray(items) ? items : [];
   const totals = getTotals();
@@ -98,7 +95,6 @@ export default function PagoPage() {
 
   // Crear orden de PayPal
   const createOrder = (data, actions) => {
-    console.log("🛒 Creando orden PayPal por $", total.toFixed(2));
     return actions.order.create({
       purchase_units: [
         {
@@ -119,16 +115,19 @@ export default function PagoPage() {
 
   // Manejar aprobación de PayPal
   const onApprove = async (data, actions) => {
-    console.log("✅ Pago aprobado, capturando...");
     setProcessing(true);
     setPaypalError(null);
-    
+
     try {
+      // Validar que actions y actions.order existan
+      if (!actions || !actions.order) {
+        throw new Error('PayPal actions no disponibles');
+      }
+
       const details = await actions.order.capture();
-      console.log('✅ PayPal payment captured:', details);
-      
+
       // Crear reservas
-      const bookingPromises = safeItems.map(item => 
+      const bookingPromises = safeItems.map(item =>
         api.post('/bookings', {
           tour_id: item.tour_id,
           travel_date: item.travel_date,
@@ -137,7 +136,7 @@ export default function PagoPage() {
       );
 
       const bookings = await Promise.all(bookingPromises);
-      
+
       // Actualizar estado de pago
       for (const booking of bookings) {
         const bookingId = booking.data?.data?.id;
@@ -154,10 +153,20 @@ export default function PagoPage() {
       }
 
       await clearCart();
-      
+
       const firstBookingId = bookings[0]?.data?.data?.id;
-      navigate(`/resumen-reserva?booking=${firstBookingId}&payment=success`);
-      
+      const totalPaid = total;
+      const bookingsCount = bookings.length;
+
+      navigate('/resumen-reserva', {
+        state: {
+          bookingId: firstBookingId,
+          totalPaid: totalPaid,
+          bookingsCount: bookingsCount,
+          paymentMethod: 'PayPal'
+        }
+      });
+
     } catch (error) {
       console.error('Error:', error);
       setPaypalError('Error al procesar la reserva. Contacta a soporte.');
@@ -166,13 +175,70 @@ export default function PagoPage() {
     }
   };
 
+  // Manejar pago simulado (Yape/Plin)
+  const handleSimulatedPayment = async () => {
+    setProcessing(true);
+    setPaypalError(null);
+
+    try {
+      // Simular delay de procesamiento
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // Crear reservas
+      const bookingPromises = safeItems.map(item =>
+        api.post('/bookings', {
+          tour_id: item.tour_id,
+          travel_date: item.travel_date,
+          number_of_people: item.number_of_people,
+        })
+      );
+
+      const bookings = await Promise.all(bookingPromises);
+
+      // Actualizar estado de pago
+      for (const booking of bookings) {
+        const bookingId = booking.data?.data?.id;
+        if (bookingId) {
+          await api.put(`/admin/bookings/${bookingId}/payment`, {
+            payment_status: 'paid',
+            payment_method: 'Yape/Plin (Simulado)',
+          }).catch(console.warn);
+
+          await api.put(`/admin/bookings/${bookingId}/status`, {
+            status: 'confirmed'
+          }).catch(console.warn);
+        }
+      }
+
+      await clearCart();
+
+      const firstBookingId = bookings[0]?.data?.data?.id;
+      const totalPaid = total;
+      const bookingsCount = bookings.length;
+
+      navigate('/resumen-reserva', {
+        state: {
+          bookingId: firstBookingId,
+          totalPaid: totalPaid,
+          bookingsCount: bookingsCount,
+          paymentMethod: 'Yape/Plin'
+        }
+      });
+
+    } catch (error) {
+      console.error('Error:', error);
+      setPaypalError('Error al procesar la reserva. Intenta nuevamente.');
+    } finally {
+      setProcessing(false);
+    }
+  };
+
   const onError = (err) => {
-    console.error('❌ PayPal error:', err);
+    console.error('PayPal error:', err);
     setPaypalError('Error con PayPal. Intenta nuevamente.');
   };
 
   const onCancel = () => {
-    console.log('Pago cancelado');
     setPaypalError('Has cancelado el pago.');
   };
 
@@ -308,7 +374,7 @@ export default function PagoPage() {
                       <IoLogoPaypal className="text-blue-600" size={24} />
                       Pagar con PayPal
                     </h3>
-                    
+
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
                       <div className="flex items-start gap-3">
                         <IoShieldCheckmark className="text-blue-600 mt-0.5" size={20} />
@@ -325,7 +391,6 @@ export default function PagoPage() {
                       </div>
                     )}
 
-                    {/* Estado del script PayPal */}
                     {isPending && (
                       <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
                         <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-pm-gold mx-auto"></div>
@@ -352,7 +417,6 @@ export default function PagoPage() {
                       </div>
                     )}
 
-                    {/* BOTONES DE PAYPAL */}
                     {isResolved && !processing && (
                       <div className="paypal-button-container">
                         <PayPalButtons
@@ -373,15 +437,70 @@ export default function PagoPage() {
                       </div>
                     )}
 
-                    {/* Debug info - remover en producción */}
-                    <div className="mt-4 p-3 bg-gray-100 rounded text-xs text-gray-600">
-                      <p><strong>Debug:</strong> isPending={String(isPending)}, isResolved={String(isResolved)}, isRejected={String(isRejected)}</p>
-                      <p><strong>Total:</strong> ${total.toFixed(2)} USD</p>
-                    </div>
-
                     <button onClick={() => setStep(1)} className="w-full mt-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
                       ← Volver
                     </button>
+                  </div>
+                )}
+
+                {/* Yape/Plin Section (Simulado) */}
+                {method === "yape_plin" && (
+                  <div className="bg-white rounded-2xl shadow-lg p-6">
+                    <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                      <IoPhonePortraitOutline className="text-purple-600" size={24} />
+                      Pagar con Yape / Plin (Simulado)
+                    </h3>
+
+                    <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-6">
+                      <div className="flex items-start gap-3">
+                        <IoAlertCircle className="text-purple-600 mt-0.5" size={20} />
+                        <div>
+                          <p className="text-sm text-purple-800 font-semibold mb-1">
+                            Modo de prueba activado
+                          </p>
+                          <p className="text-sm text-purple-700">
+                            Este es un pago simulado para pruebas. Al confirmar, tu reserva será procesada automáticamente.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {paypalError && (
+                      <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                        <div className="flex items-center gap-2">
+                          <IoAlertCircle className="text-red-600" size={20} />
+                          <p className="text-sm text-red-800">{paypalError}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {processing ? (
+                      <div className="text-center py-8">
+                        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-purple-500 mx-auto"></div>
+                        <p className="mt-3 text-gray-600">Procesando tu pago simulado...</p>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg p-6 mb-6 text-white">
+                          <div className="text-center">
+                            <IoPhonePortraitOutline size={48} className="mx-auto mb-3" />
+                            <p className="text-sm mb-2">Total a pagar</p>
+                            <p className="text-3xl font-bold">S/. {total.toFixed(2)}</p>
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={handleSimulatedPayment}
+                          className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 rounded-lg font-bold hover:from-purple-700 hover:to-pink-700 transition-all mb-4"
+                        >
+                          Confirmar Pago Simulado
+                        </button>
+
+                        <button onClick={() => setStep(1)} className="w-full py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                          ← Volver
+                        </button>
+                      </>
+                    )}
                   </div>
                 )}
               </div>
@@ -400,22 +519,22 @@ export default function PagoPage() {
                       <p className="font-medium text-gray-900 text-sm truncate">{item.tour?.name}</p>
                       <p className="text-xs text-gray-500">{item.number_of_people} pers.</p>
                     </div>
-                    <p className="font-bold text-sm">${(parseFloat(item.subtotal) || 0).toFixed(2)}</p>
+                    <p className="font-bold text-sm">S/. {(parseFloat(item.subtotal) || 0).toFixed(2)}</p>
                   </div>
                 ))}
               </div>
               <div className="border-t pt-4 space-y-2">
                 <div className="flex justify-between text-gray-600 text-sm">
                   <span>Subtotal</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                  <span>S/. {subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-gray-600 text-sm">
                   <span>IGV (18%)</span>
-                  <span>${tax.toFixed(2)}</span>
+                  <span>S/. {tax.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-xl font-bold text-gray-900 pt-2 border-t">
                   <span>Total</span>
-                  <span className="text-pm-gold">${total.toFixed(2)}</span>
+                  <span className="text-pm-gold">S/. {total.toFixed(2)}</span>
                 </div>
               </div>
               <div className="mt-4 pt-4 border-t flex items-center gap-2 text-sm text-gray-500">

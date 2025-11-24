@@ -15,6 +15,7 @@ class Booking extends Model
     use HasFactory;
 
     protected $fillable = [
+        'booking_code',
         'booking_number',
         'user_id',
         'tour_id',
@@ -34,11 +35,11 @@ class Booking extends Model
 
     protected $casts = [
         'travel_date' => 'date',
+        'cancelled_at' => 'datetime',
         'price_per_person' => 'decimal:2',
         'subtotal' => 'decimal:2',
         'tax' => 'decimal:2',
         'total' => 'decimal:2',
-        'cancelled_at' => 'datetime',
     ];
 
     // Relaciones
@@ -61,7 +62,7 @@ class Booking extends Model
     protected static function boot()
     {
         parent::boot();
-        
+
         static::creating(function ($booking) {
             if (!$booking->booking_number) {
                 $booking->booking_number = 'PM-' . strtoupper(uniqid());

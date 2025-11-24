@@ -151,6 +151,9 @@ function App() {
 
           {/* Resumen de reserva */}
           <Route path="/resumen-reserva" element={<ProtectedRoute><ResumenReservaPage /></ProtectedRoute>} />
+
+          <Route path="/mis-reservas" element={<ProtectedRoute><MyBookings /></ProtectedRoute>} />
+
         </Route>
 
         {/* ========================================== */}
@@ -163,20 +166,20 @@ function App() {
         {/* ========================================== */}
         <Route path="/admin" element={<ProtectedRoute requireAdmin><AdminLayout /></ProtectedRoute>}>
           <Route index element={<AdminDashboard />} />
-          
+
           {/* Tours Admin */}
           <Route path="tours" element={<AdminToursListPage />} />
           <Route path="tours/create" element={<CreateTourPage />} />
           <Route path="tours/:id/edit" element={<CreateTourPage />} />
-          
+
           {/* Packages Admin */}
-          <Route path="packages" element={<AdminPackagesListPage />} />
-          <Route path="packages/create" element={<CreatePackagePage />} />
-          <Route path="packages/:id/edit" element={<CreatePackagePage />} />
-          
+		<Route path="packages" element={<AdminPackagesListPage />} />
+		<Route path="packages/create" element={<CreatePackagePage />} />
+		<Route path="packages/:id/edit" element={<CreatePackagePage />} />
+
           {/* Users Admin */}
           <Route path="users" element={<UsersListPage />} />
-          
+
           {/* Bookings Admin */}
           <Route path="bookings" element={<BookingsListPage />} />
           <Route path="stats" element={<BookingsStatsPage />} />

@@ -1,4 +1,4 @@
-// src/features/booking/components/PayPalButton.jsx
+// src/g/components/PayPalButton.jsx
 
 import { PayPalButtons } from '@paypal/react-paypal-js';
 import { useState } from 'react';

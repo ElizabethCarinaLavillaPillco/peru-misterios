@@ -1,6 +1,4 @@
-// =============================================================
-// ARCHIVO: src/pages/mi-cuenta/Dashboard.jsx (ACTUALIZADO CON DATOS REALES)
-// =============================================================
+// src/pages/mi-cuenta/Dashboard.jsx
 
 import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
@@ -8,15 +6,15 @@ import useAuthStore from '@/store/authStore';
 import useFavoritesStore from '@/store/favoritesStore';
 import useCartStore from '@/store/cartStore';
 import api from '@/lib/api';
-import { 
-  IoPersonOutline, 
-  IoCalendarOutline, 
+import {
+  IoPersonOutline,
+  IoCalendarOutline,
   IoHeartOutline,
   IoLogOutOutline,
   IoHomeOutline,
   IoMapOutline,
-  IoStarOutline,
-  IoCart
+  IoCart,
+  IoArrowForward
 } from 'react-icons/io5';
 
 export default function Dashboard() {
@@ -24,28 +22,39 @@ export default function Dashboard() {
   const { favorites, loadFavorites } = useFavoritesStore();
   const { items, loadCart } = useCartStore();
   const navigate = useNavigate();
-  
+
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/login');
       return;
     }
-    
+
     loadData();
   }, [isAuthenticated]);
 
   const loadData = async () => {
     try {
-      await Promise.all([
+      setError(null);
+
+      const results = await Promise.allSettled([
         loadFavorites(),
         loadCart(),
         loadBookings()
       ]);
+
+      results.forEach((result, index) => {
+        if (result.status === 'rejected') {
+          console.error(`Error en carga ${index}:`, result.reason);
+        }
+      });
+
     } catch (error) {
       console.error('Error cargando datos:', error);
+      setError('Error al cargar algunos datos');
     } finally {
       setLoading(false);
     }
@@ -54,9 +63,12 @@ export default function Dashboard() {
   const loadBookings = async () => {
     try {
       const response = await api.get('/my-bookings');
-      setBookings(response.data || []);
+      const bookingsData = response.data?.data || response.data || [];
+      setBookings(Array.isArray(bookingsData) ? bookingsData : []);
     } catch (error) {
       console.error('Error cargando reservas:', error);
+      setBookings([]);
+      throw error;
     }
   };
 
@@ -68,14 +80,21 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pm-gold"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pm-gold mx-auto"></div>
+          <p className="mt-4 text-gray-600">Cargando tu dashboard...</p>
+        </div>
       </div>
     );
   }
 
-  const activeBookings = bookings.filter(b => b.status !== 'cancelled' && b.status !== 'completed');
-  const completedTours = bookings.filter(b => b.status === 'completed').length;
+  const safeBookings = Array.isArray(bookings) ? bookings : [];
+  const safeFavorites = Array.isArray(favorites) ? favorites : [];
+  const safeItems = Array.isArray(items) ? items : [];
+
+  const activeBookings = safeBookings.filter(b => b.status !== 'cancelled' && b.status !== 'completed');
+  const completedTours = safeBookings.filter(b => b.status === 'completed').length;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -95,20 +114,20 @@ export default function Dashboard() {
             </div>
 
             <div className="hidden md:flex items-center gap-6">
-              <Link 
-                to="/mi-cuenta" 
+              <Link
+                to="/mi-cuenta"
                 className="text-white/90 hover:text-pm-gold transition-colors text-sm font-medium"
               >
                 Dashboard
               </Link>
-              <Link 
-                to="/mis-reservas" 
+              <Link
+                to="/mis-reservas"
                 className="text-white/90 hover:text-pm-gold transition-colors text-sm font-medium"
               >
                 Mis Reservas
               </Link>
-              <Link 
-                to="/mis-favoritos" 
+              <Link
+                to="/mis-favoritos"
                 className="text-white/90 hover:text-pm-gold transition-colors text-sm font-medium"
               >
                 Favoritos
@@ -116,8 +135,8 @@ export default function Dashboard() {
             </div>
 
             <div className="flex items-center gap-4">
-              <Link 
-                to="/" 
+              <Link
+                to="/"
                 className="text-white/70 hover:text-white text-sm flex items-center gap-1"
               >
                 <IoHomeOutline size={18} />
@@ -151,53 +170,74 @@ export default function Dashboard() {
           <p className="text-gray-600 mt-1">
             Bienvenido a tu panel de control
           </p>
+          {error && (
+            <div className="mt-4 bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-sm text-yellow-800">
+              {error}
+            </div>
+          )}
         </div>
 
-        {/* Stats Cards */}
+        {/* Stats Cards - CLICKEABLES */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+          {/* Card Reservas */}
+          <Link
+            to="/mis-reservas"
+            className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-lg hover:border-blue-300 transition-all cursor-pointer group"
+          >
             <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-blue-100 rounded-lg">
+              <div className="p-3 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
                 <IoCalendarOutline className="text-blue-600" size={24} />
               </div>
-              <span className="text-xs text-gray-500 font-medium">RESERVAS</span>
+              <IoArrowForward className="text-gray-400 group-hover:text-blue-600 transition-colors" size={20} />
             </div>
             <h3 className="text-2xl font-bold text-gray-900 mb-1">{activeBookings.length}</h3>
             <p className="text-sm text-gray-600">Reservas activas</p>
-          </div>
+          </Link>
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+          {/* Card Tours Completados */}
+          <Link
+            to="/mis-reservas"
+            className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-lg hover:border-green-300 transition-all cursor-pointer group"
+          >
             <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-green-100 rounded-lg">
+              <div className="p-3 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
                 <IoMapOutline className="text-green-600" size={24} />
               </div>
-              <span className="text-xs text-gray-500 font-medium">TOURS</span>
+              <IoArrowForward className="text-gray-400 group-hover:text-green-600 transition-colors" size={20} />
             </div>
             <h3 className="text-2xl font-bold text-gray-900 mb-1">{completedTours}</h3>
             <p className="text-sm text-gray-600">Tours completados</p>
-          </div>
+          </Link>
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+          {/* Card Favoritos */}
+          <Link
+            to="/mis-favoritos"
+            className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-lg hover:border-pink-300 transition-all cursor-pointer group"
+          >
             <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-pink-100 rounded-lg">
+              <div className="p-3 bg-pink-100 rounded-lg group-hover:bg-pink-200 transition-colors">
                 <IoHeartOutline className="text-pink-600" size={24} />
               </div>
-              <span className="text-xs text-gray-500 font-medium">FAVORITOS</span>
+              <IoArrowForward className="text-gray-400 group-hover:text-pink-600 transition-colors" size={20} />
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-1">{favorites.length}</h3>
+            <h3 className="text-2xl font-bold text-gray-900 mb-1">{safeFavorites.length}</h3>
             <p className="text-sm text-gray-600">Tours guardados</p>
-          </div>
+          </Link>
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+          {/* Card Carrito */}
+          <Link
+            to="/cart"
+            className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-lg hover:border-yellow-300 transition-all cursor-pointer group"
+          >
             <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-yellow-100 rounded-lg">
+              <div className="p-3 bg-yellow-100 rounded-lg group-hover:bg-yellow-200 transition-colors">
                 <IoCart className="text-yellow-600" size={24} />
               </div>
-              <span className="text-xs text-gray-500 font-medium">CARRITO</span>
+              <IoArrowForward className="text-gray-400 group-hover:text-yellow-600 transition-colors" size={20} />
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-1">{items.length}</h3>
+            <h3 className="text-2xl font-bold text-gray-900 mb-1">{safeItems.length}</h3>
             <p className="text-sm text-gray-600">Items en carrito</p>
-          </div>
+          </Link>
         </div>
 
         {/* Quick Actions */}
@@ -241,8 +281,19 @@ export default function Dashboard() {
 
         {/* Reservas Activas */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Próximos Viajes</h2>
-          
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-gray-900">Próximos Viajes</h2>
+            {activeBookings.length > 0 && (
+              <Link
+                to="/mis-reservas"
+                className="text-pm-gold hover:text-pm-gold/80 font-semibold text-sm flex items-center gap-1"
+              >
+                Ver todas
+                <IoArrowForward size={16} />
+              </Link>
+            )}
+          </div>
+
           {activeBookings.length === 0 ? (
             <div className="text-center py-12">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
@@ -264,11 +315,11 @@ export default function Dashboard() {
             </div>
           ) : (
             <div className="space-y-4">
-              {activeBookings.map(booking => (
+              {activeBookings.slice(0, 3).map(booking => (
                 <div key={booking.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                   <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="font-bold text-gray-900">{booking.tour?.name}</h4>
+                    <div className="flex-1">
+                      <h4 className="font-bold text-gray-900">{booking.tour?.name || 'Tour'}</h4>
                       <p className="text-sm text-gray-600">
                         {new Date(booking.travel_date).toLocaleDateString('es-ES', {
                           weekday: 'long',
@@ -277,10 +328,13 @@ export default function Dashboard() {
                           day: 'numeric'
                         })}
                       </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {booking.number_of_people} persona(s) · {booking.booking_code}
+                      </p>
                     </div>
                     <Link
                       to="/mis-reservas"
-                      className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors font-semibold"
+                      className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors font-semibold text-sm"
                     >
                       Ver Detalles
                     </Link>
