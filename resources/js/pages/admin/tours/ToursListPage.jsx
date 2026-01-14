@@ -1,6 +1,7 @@
 // =============================================================
 // ARCHIVO: src/pages/admin/tours/ToursListPage.jsx
 // =============================================================
+import React from 'react';
 
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';

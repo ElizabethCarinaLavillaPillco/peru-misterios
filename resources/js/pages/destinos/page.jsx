@@ -1,6 +1,7 @@
 // =============================================================
 // ARCHIVO: src/pages/destinos/cusco/page.jsx (ACTUALIZADO - CON TOURS REALES)
 // =============================================================
+import React from 'react';
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';

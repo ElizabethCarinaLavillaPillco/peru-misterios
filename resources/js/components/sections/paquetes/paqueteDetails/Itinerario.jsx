@@ -1,4 +1,4 @@
-// src/components/paquetes/paqueteDetails/Itinerario.jsx
+import React from 'react';
 "use client";
 import { useState } from "react";
 

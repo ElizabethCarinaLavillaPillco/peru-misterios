@@ -1,3 +1,5 @@
+import React from 'react';
+
 export default function PlanificaViaje({
   onStart = () => alert("Abrir chat…"),  // cámbialo por tu handler real
   secondaryHref = "/paquetes",

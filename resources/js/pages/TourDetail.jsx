@@ -1,6 +1,7 @@
 // =============================================================
 // src/pages/TourDetail.jsx (LIMPIO - SIN DUPLICADOS)
 // =============================================================
+import React from 'react';
 
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';

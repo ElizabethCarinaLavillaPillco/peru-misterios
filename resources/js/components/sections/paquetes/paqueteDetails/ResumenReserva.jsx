@@ -1,3 +1,4 @@
+import React from 'react';
 import { Link } from "react-router-dom";
 
 const PEN = (n) => new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN" }).format(n);

@@ -1,4 +1,5 @@
 // src/pages/resumen-reserva/page.jsx
+import React from 'react';
 
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';

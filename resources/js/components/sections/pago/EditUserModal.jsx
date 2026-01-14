@@ -1,3 +1,4 @@
+import React from 'react';
 import { useEffect, useRef, useState, useCallback } from "react";
 
 export default function EditUserModal({ open, onClose, user, onSave }) {

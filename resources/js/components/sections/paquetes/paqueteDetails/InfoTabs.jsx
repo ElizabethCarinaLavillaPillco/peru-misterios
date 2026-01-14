@@ -1,5 +1,5 @@
-// src/components/paquetes/paqueteDetails/InfoTabs.jsx
-"use client";
+import React from 'react';
+
 import { useState } from "react";
 
 const TABS = [

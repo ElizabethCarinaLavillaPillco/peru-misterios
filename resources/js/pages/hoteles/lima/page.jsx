@@ -1,3 +1,4 @@
+import React from 'react';
 import LimaPage from "@/components/sections/hoteles/LimaPage";
 
 export const metadata = {

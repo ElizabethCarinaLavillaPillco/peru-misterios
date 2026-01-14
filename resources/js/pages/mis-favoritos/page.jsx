@@ -1,6 +1,7 @@
 // =============================================================
 // ARCHIVO: src/pages/mis-favoritos/page.jsx (NUEVA PÁGINA)
 // =============================================================
+import React from 'react';
 
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';

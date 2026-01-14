@@ -1,4 +1,5 @@
 // src/pages/admin/activities/AdminActivitiesListPage.jsx
+import React from 'react';
 
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';

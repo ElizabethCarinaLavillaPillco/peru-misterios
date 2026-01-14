@@ -1,3 +1,4 @@
+import React from 'react';
 import { useMemo } from "react";
 import CartSummary from "./CartSummary";
 import {

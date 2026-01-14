@@ -1,3 +1,4 @@
+import React from 'react';
 import DetailHeader from "./DetailHeader";
 import DetailGallery from "./DetailGallery";
 import DetailTabs from "./DetailTabs";

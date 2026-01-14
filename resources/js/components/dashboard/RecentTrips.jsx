@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState } from 'react';
 // frontend/src/components/dashboard/RecentTrips.jsx
 import { Link } from 'react-router-dom';

@@ -1,3 +1,4 @@
+import React from 'react';
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { IoChevronBack, IoChevronForward, IoLocationOutline } from "react-icons/io5";

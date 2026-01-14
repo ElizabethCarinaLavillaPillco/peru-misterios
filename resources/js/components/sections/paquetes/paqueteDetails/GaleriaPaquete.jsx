@@ -1,4 +1,4 @@
-// src/components/sections/paquetes/paqueteDetails/GaleriaPaquete.jsx
+import React from 'react';
 export default function GaleriaPaquete({ imagenPrincipal, imagenes = [] }) {
   // Simple, rápido y accesible (sin dependencias). 1 grande + 3 miniaturas.
   const thumbs = imagenes.slice(0, 3);

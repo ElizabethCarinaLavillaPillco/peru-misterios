@@ -1,3 +1,4 @@
+import React from 'react';
 import { Link, useSearchParams, useLocation } from "react-router-dom";
 
 const CATS = [

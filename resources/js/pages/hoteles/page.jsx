@@ -2,6 +2,7 @@
 // =============================================================
 // ARCHIVO: src/pages/hoteles/page.jsx
 // =============================================================
+import React from 'react';
 
 import { Link } from 'react-router-dom';
 import { IoLocationSharp, IoBedOutline } from 'react-icons/io5';

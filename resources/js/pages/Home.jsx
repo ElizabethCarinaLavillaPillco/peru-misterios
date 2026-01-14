@@ -1,12 +1,12 @@
-// src/pages/Home.jsx
+import React from 'react';
 
 import HeroSection from '@/components/sections/home/HeroSection';
 import DestinosPopulares from '@/components/sections/home/DestinosPopulares.jsx';
 import ToursDestacados from '@/components/sections/home/ToursDestacados';
 import WhyChooseUs from '@/components/sections/home/WhyChooseUs';
 import Testimonios from '@/components/sections/home/Testimonios';
-import { Certificaciones } from '@/components/sections/home/Certificaciones';
-import { FinalCta } from '@/components/sections/home/FinalCta';
+import Certificaciones from '@/components/sections/home/Certificaciones';
+import FinalCta from '@/components/sections/home/FinalCta';
 
 export default function Home() {
   return (

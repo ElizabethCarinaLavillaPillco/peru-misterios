@@ -1,3 +1,4 @@
+import React from 'react';
 import { useMemo, useState } from "react";
 import { IoPricetagOutline, IoPeopleOutline, IoCalendarOutline, IoStar } from "react-icons/io5";
 

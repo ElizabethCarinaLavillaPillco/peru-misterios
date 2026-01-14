@@ -1,4 +1,4 @@
-// src/components/paquetes/paqueteDetails/EncabezadoPaquete.jsx
+import React from 'react';
 import { Link } from "react-router-dom";
 
 export default function EncabezadoPaquete({ titulo, ciudad, categoria, rating = 4.8, duracion = "4 días / 3 noches" }) {

@@ -1,6 +1,4 @@
-// =============================================================
-// ARCHIVO: src/components/tours/TourCardWithFavorite.jsx (COMPONENTE REUTILIZABLE)
-// =============================================================
+import React from 'react';
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';

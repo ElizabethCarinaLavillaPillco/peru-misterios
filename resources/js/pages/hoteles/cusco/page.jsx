@@ -1,3 +1,4 @@
+import React from 'react';
 
 import CuscoPage from "@/components/sections/hoteles/CuscoPage";
 

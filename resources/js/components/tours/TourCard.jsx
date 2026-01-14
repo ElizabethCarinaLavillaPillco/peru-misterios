@@ -1,7 +1,4 @@
-// ============================================
-// src/components/tours/TourCard.jsx
-// COMPONENTE MEJORADO CON BOTÓN "VER DETALLES"
-// ============================================
+import React from 'react';
 
 import { Link } from 'react-router-dom';
 import { 

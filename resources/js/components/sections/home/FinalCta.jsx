@@ -1,11 +1,8 @@
-
-// ============================================
-// src/components/home/FinalCta.jsx
-// ============================================
+import React from 'react';
 
 import { IoLocationSharp } from 'react-icons/io5';
 
-export function FinalCta() {
+function FinalCta() {
   return (
     <div className="bg-white py-20">
       <div className="container mx-auto px-6 space-y-12">
@@ -50,3 +47,4 @@ export function FinalCta() {
     </div>
   );
 }
+export default FinalCta;

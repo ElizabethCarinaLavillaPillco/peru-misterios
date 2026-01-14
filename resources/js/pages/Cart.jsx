@@ -1,4 +1,5 @@
 // src/pages/Cart.jsx
+import React from 'react';
 
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';

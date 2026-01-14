@@ -1,3 +1,4 @@
+import React from 'react';
 export default function Stepper({
   current = 1,
   title,        // título opcional

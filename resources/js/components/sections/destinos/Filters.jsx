@@ -1,3 +1,4 @@
+import React from 'react';
 import { useMemo } from "react";
 
 const ciudadesBase = ["Puno","Madre de Dios","Lima","Ica","Huaraz","Cusco","Arequipa","Apurímac"];

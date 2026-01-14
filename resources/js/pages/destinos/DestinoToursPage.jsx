@@ -2,6 +2,7 @@
 // ARCHIVO: src/pages/destinos/DestinoToursPage.jsx
 // PÁGINA GENÉRICA PARA MOSTRAR TOURS DE CUALQUIER DESTINO
 // =============================================================
+import React from 'react';
 
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';

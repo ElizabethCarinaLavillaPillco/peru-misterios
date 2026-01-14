@@ -1,4 +1,4 @@
-// src/components/home/ToursDestacados.jsx
+import React from 'react';
 
 import { Link } from 'react-router-dom';
 import { IoCalendarOutline, IoGlobeOutline, IoArrowForward } from "react-icons/io5";

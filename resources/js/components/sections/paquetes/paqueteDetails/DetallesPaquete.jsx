@@ -1,4 +1,4 @@
-// src/components/paquetes/paqueteDetails/DetallesPaquete.jsx
+import React from 'react';
 import EncabezadoPaquete from "./EncabezadoPaquete";
 import GaleriaPaquete from "./GaleriaPaquete";
 import Itinerario from "./Itinerario";

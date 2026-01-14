@@ -1,3 +1,4 @@
+import React from 'react';
 import CategoriaPills from "./CategoriaPills";
 
 export default function EncabezadoPaquetes() {

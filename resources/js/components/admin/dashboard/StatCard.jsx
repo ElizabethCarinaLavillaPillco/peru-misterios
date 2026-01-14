@@ -1,4 +1,4 @@
-// src/components/admin/dashboard/StatCard.jsx
+import React from 'react';
 
 import { IoTrendingUpOutline, IoTrendingDownOutline } from 'react-icons/io5';
 

@@ -1,4 +1,5 @@
 // src/pages/admin/AdminDashboard.jsx
+import React from 'react';
 
 import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';

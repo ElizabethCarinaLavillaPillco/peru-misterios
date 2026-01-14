@@ -1,6 +1,4 @@
-// ============================================
-// src/components/home/Testimonios.jsx
-// ============================================
+import React from 'react';
 
 import Slider from "react-slick";
 import { IoStar, IoChevronBack, IoChevronForward } from 'react-icons/io5';

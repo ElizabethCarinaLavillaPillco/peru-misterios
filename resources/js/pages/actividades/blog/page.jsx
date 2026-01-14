@@ -1,5 +1,5 @@
 // src/pages/actividades/blog/page.jsx
-
+import React from 'react';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '@/lib/api';

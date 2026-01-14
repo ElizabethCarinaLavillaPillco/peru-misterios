@@ -1,6 +1,5 @@
-// =============================================================
-// ARCHIVO: src/components/layout/AdminLayout.jsx
-// =============================================================
+import React from 'react';
+
 import { useState } from 'react';
 
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
@@ -30,7 +29,7 @@ const navItems = [
   { name: 'Estadísticas', href: '/admin/stats', icon: IoStatsChartOutline },
 ];
 
-export default function AdminLayout() {
+function AdminLayout() {
   const { user, logout } = useAuthStore();
   const location = useLocation();
   const navigate = useNavigate();
@@ -165,3 +164,5 @@ export default function AdminLayout() {
     </div>
   );
 }
+
+export default AdminLayout;

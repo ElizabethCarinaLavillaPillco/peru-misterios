@@ -1,10 +1,10 @@
-
-// ============================================
-// src/components/home/Certificaciones.jsx
-// ============================================
+import React from 'react';
 
 import Slider from "react-slick";
-import { IoChevronBack, IoChevronForward } from "react-icons/io5";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+import { IoChevronBack, IoChevronForward } from 'react-icons/io5';
+
 
 const certificacionesData = [
   {
@@ -36,7 +36,7 @@ const PrevArrow = ({ onClick }) => (
   </button>
 );
 
-export function Certificaciones() {
+function Certificaciones() {
   const settings = {
     dots: false,
     infinite: true,
@@ -81,3 +81,4 @@ export function Certificaciones() {
     </section>
   );
 }
+export default Certificaciones;
