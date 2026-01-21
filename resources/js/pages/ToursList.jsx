@@ -508,7 +508,7 @@ export default function ToursList() {
                       <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 h-full flex flex-col">
                         {/* Image */}
                         <div className="relative h-48 overflow-hidden">
-                          <Link to={`/tours/${tour.slug}`}>
+                          <Link to={`/tours/${tour.id}`}>
                             <img
                               src={tour.featured_image || 'https://via.placeholder.com/400x300?text=Tour'}
                               alt={tour.name}

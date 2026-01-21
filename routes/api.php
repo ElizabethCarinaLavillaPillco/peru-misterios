@@ -15,9 +15,15 @@ use Illuminate\Support\Facades\Route;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
+// Destinos públicos
+Route::get('/destinations', [\App\Http\Controllers\API\DestinationController::class, 'index']);
+Route::get('/destinations/{slug}', [\App\Http\Controllers\API\DestinationController::class, 'show']);
+
 // Tours públicos
 Route::get('/tours', [\App\Http\Controllers\API\TourController::class, 'index']);
 Route::get('/tours/{slug}', [\App\Http\Controllers\API\TourController::class, 'show']);
+Route::get('/tours/featured', [\App\Http\Controllers\API\TourController::class, 'featured']);
+
 
 // Paquetes públicos
 Route::get('/packages', [\App\Http\Controllers\API\PackageController::class, 'index']);
@@ -89,6 +95,15 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/users/{id}', [UserController::class, 'show']);
         Route::put('/users/{id}', [UserController::class, 'update']);
         Route::delete('/users/{id}', [UserController::class, 'destroy']);
+
+        // Gestión de destinos
+        Route::get('/destinations/stats', [\App\Http\Controllers\API\DestinationController::class, 'stats']);
+        Route::get('/destinations', [\App\Http\Controllers\API\DestinationController::class, 'adminIndex']);
+        Route::get('/destinations/{id}', [\App\Http\Controllers\API\DestinationController::class, 'showById']);
+        Route::post('/destinations', [\App\Http\Controllers\API\DestinationController::class, 'store']);
+        Route::put('/destinations/{id}', [\App\Http\Controllers\API\DestinationController::class, 'update']);
+        Route::delete('/destinations/{id}', [\App\Http\Controllers\API\DestinationController::class, 'destroy']);
+
 
         // Gestión de tours - ORDEN IMPORTANTE: stats primero, luego {id}
         Route::get('/tours/stats', [\App\Http\Controllers\API\TourController::class, 'stats']);

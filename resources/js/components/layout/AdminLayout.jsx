@@ -20,6 +20,7 @@ import {
 
 const navItems = [
   { name: 'Dashboard', href: '/admin', icon: IoHome },
+  { name: 'Destinos', href: '/admin/destinations', icon: IoCompassOutline }, // AGREGAR
   { name: 'Tours', href: '/admin/tours', icon: IoMapOutline },
   { name: 'Reservas', href: '/admin/bookings', icon: IoCalendarOutline },
   { name: 'Paquetes', href: '/admin/packages', icon: IoCubeOutline },

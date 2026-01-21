@@ -181,6 +181,8 @@ class TourController extends Controller
             'max_group_size' => 'required|integer|min:1',
             'location' => 'required|string|max:255',
             'category_id' => 'nullable|exists:categories,id',
+            'is_featured' => 'boolean',
+            'is_active' => 'boolean',
         ]);
 
         if ($validator->fails()) {
@@ -238,6 +240,8 @@ class TourController extends Controller
 
             $validator = Validator::make($request->all(), [
                 'name' => 'sometimes|string|max:255',
+                'is_featured' => 'boolean', 
+                'is_active' => 'boolean',
                 'description' => 'sometimes|string',
                 'price' => 'sometimes|numeric|min:0',
                 'duration_days' => 'sometimes|integer|min:1',
@@ -339,4 +343,30 @@ class TourController extends Controller
             ], 500);
         }
     }
-}
+
+    public function featured(Request $request)
+    {
+        try {
+            $limit = $request->get('limit', 5); // Por defecto 5 tours
+            
+            $tours = Tour::with(['category', 'destination'])
+                ->where('is_active', true)
+                ->where('is_featured', true)
+                ->orderBy('created_at', 'desc')
+                ->limit($limit)
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => $tours
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error al cargar tours destacados: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al cargar tours destacados',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+    }

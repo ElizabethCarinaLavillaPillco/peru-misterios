@@ -18,6 +18,7 @@ class Tour extends Model
 
     protected $fillable = [
         'category_id',
+        'destination_id', 
         'name',
         'slug',
         'description',
@@ -117,17 +118,22 @@ class Tour extends Model
         });
     }
     public function updateRating()
-{
-    $reviews = $this->reviews()->where('is_approved', true)->get();
-    
-    if ($reviews->count() > 0) {
-        $this->rating = round($reviews->avg('rating'), 1);
-        $this->total_reviews = $reviews->count();
-    } else {
-        $this->rating = 0;
-        $this->total_reviews = 0;
+    {
+        $reviews = $this->reviews()->where('is_approved', true)->get();
+        
+        if ($reviews->count() > 0) {
+            $this->rating = round($reviews->avg('rating'), 1);
+            $this->total_reviews = $reviews->count();
+        } else {
+            $this->rating = 0;
+            $this->total_reviews = 0;
+        }
+        
+        $this->save();
     }
-    
-    $this->save();
-}
+
+    public function destination()
+    {
+        return $this->belongsTo(Destination::class);
+    }
 }

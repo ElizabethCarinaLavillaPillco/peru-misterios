@@ -67,15 +67,15 @@ function DesktopDropdown({ link, isOpen, onToggle, onClose, idx }) {
         aria-expanded={isOpen}
         aria-haspopup="menu"
         onClick={onToggle}
-        className="group relative flex items-center gap-1 text-[15px] font-medium text-white/90 transition-colors hover:text-pm-gold focus:outline-none focus-visible:ring-2 focus-visible:ring-pm-gold/60 rounded"
+        className="group relative flex items-center gap-1 text-sm font-medium text-white/90 transition-colors hover:text-pm-gold focus:outline-none focus-visible:ring-2 focus-visible:ring-pm-gold/60 rounded px-2 py-1"
       >
         {link.name}
         <IoChevronDownOutline 
           className={"ml-1 transition-transform duration-200 " + (isOpen ? "rotate-180" : "")}
-          size={16}
+          size={14}
         />
         <span
-          className={"pointer-events-none absolute -bottom-2 left-0 h-[2px] bg-gradient-to-r from-pm-gold/0 via-pm-gold to-pm-gold/0 transition-all duration-300 " + (isOpen ? "w-full opacity-100" : "w-0 opacity-0")}
+          className={"pointer-events-none absolute -bottom-2 left-2 right-2 h-[2px] bg-gradient-to-r from-pm-gold/0 via-pm-gold to-pm-gold/0 transition-all duration-300 " + (isOpen ? "w-full opacity-100" : "w-0 opacity-0")}
         />
       </button>
 
@@ -84,7 +84,7 @@ function DesktopDropdown({ link, isOpen, onToggle, onClose, idx }) {
           id={menuId}
           role="menu"
           aria-labelledby={btnId}
-          className="absolute left-0 mt-4 w-60 rounded-2xl border border-white/10 bg-white/95 text-pm-black shadow-xl backdrop-blur-md ring-1 ring-black/5 overflow-hidden"
+          className="absolute left-0 mt-3 w-56 rounded-xl border border-white/10 bg-pm-black/95 text-white shadow-[0_10px_40px_-10px_rgba(0,0,0,0.8)] backdrop-blur-md ring-1 ring-pm-gold/10 overflow-hidden z-50"
         >
           <div className="py-2">
             {link.href && (
@@ -92,7 +92,7 @@ function DesktopDropdown({ link, isOpen, onToggle, onClose, idx }) {
                 to={link.href}
                 role="menuitem"
                 onClick={onClose}
-                className="block px-4 py-2 text-[15px] font-medium text-neutral-700 hover:bg-black/5 hover:text-pm-gold transition-colors"
+                className="block px-4 py-2 text-sm font-medium text-white/70 hover:bg-white/5 hover:text-pm-gold transition-colors"
               >
                 Ver todas {link.name.toLowerCase()}
               </Link>
@@ -104,7 +104,7 @@ function DesktopDropdown({ link, isOpen, onToggle, onClose, idx }) {
                 to={s.href}
                 role="menuitem"
                 onClick={onClose}
-                className="block px-4 py-2 text-[15px] font-bold text-pm-gold hover:text-pm-gold-dark transition-colors hover:bg-black/5"
+                className="block px-4 py-2 text-sm font-medium text-white hover:bg-white/5 hover:text-pm-gold transition-colors"
               >
                 {s.name}
               </Link>
@@ -124,20 +124,20 @@ function MobileNavItem({ item, onClose }) {
       <div className="border-b border-white/10">
         <button
           onClick={() => setOpen((v) => !v)}
-          className="flex w-full items-center justify-between py-4 text-base text-white/90 transition-colors hover:text-white"
+          className="flex w-full items-center justify-between py-4 text-base text-white/90 transition-colors hover:text-pm-gold"
           aria-expanded={open}
         >
-          <span>{item.name}</span>
+          <span className="font-medium">{item.name}</span>
           <IoChevronDownOutline className={"transition-transform " + (open ? "rotate-180" : "")} />
         </button>
 
         {open && (
-          <div className="pl-3 pb-3 flex flex-col gap-2">
+          <div className="pl-4 pb-3 flex flex-col gap-2">
             {item.href && (
               <Link
                 to={item.href}
                 onClick={onClose}
-                className="text-sm font-medium text-white/90 transition-colors hover:text-pm-gold"
+                className="text-sm font-medium text-white/70 transition-colors hover:text-pm-gold"
               >
                 Ver todas {item.name.toLowerCase()}
               </Link>
@@ -148,7 +148,7 @@ function MobileNavItem({ item, onClose }) {
                 key={s.name}
                 to={s.href}
                 onClick={onClose}
-                className="text-sm text-white/70 transition-colors hover:text-pm-gold"
+                className="text-sm text-white/60 transition-colors hover:text-pm-gold"
               >
                 {s.name}
               </Link>
@@ -163,7 +163,7 @@ function MobileNavItem({ item, onClose }) {
     <Link
       to={item.href || "#"}
       onClick={onClose}
-      className="block py-4 text-base text-white/80 transition-colors hover:text-pm-gold border-b border-white/10"
+      className="block py-4 text-base font-medium text-white/90 transition-colors hover:text-pm-gold border-b border-white/10"
     >
       {item.name}
     </Link>
@@ -224,23 +224,26 @@ function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-50">
+      <header className="sticky top-0 z-50 bg-pm-black/95 backdrop-blur-md border-b border-white/5 transition-all duration-300">
         <div
           ref={shellRef}
-          className="relative mx-auto max-w-7xl px-4 sm:px-6 pt-4"
+          className="relative mx-auto max-w-7xl px-4 sm:px-6 pt-3 pb-3"
           aria-label="Barra de navegación principal"
         >
-          <div className="relative flex items-center justify-between rounded-full border border-white/10 bg-pm-black/70 backdrop-blur-xl shadow-[0_10px_30px_-10px_rgba(0,0,0,0.6)] px-4 sm:px-6 h-16">
+          {/* Main Bar Container */}
+          {/* CAMBIO APLICADO AQUÍ: border-pm-gold/30 y shadow dorado */}
+          <div className="relative flex items-center justify-between rounded-full border border-pm-gold/30 bg-white/5 backdrop-blur-xl shadow-[0_0_15px_rgba(219,164,0,0.2)] px-4 sm:px-6 h-[64px]">
+            
             <button
               onClick={() => setIsMenuOpen(true)}
-              className="md:hidden text-white icon-outline transition-colors hover:text-pm-gold"
+              className="md:hidden text-white transition-colors hover:text-pm-gold"
               aria-label="Abrir menú"
               ref={firstMobileBtnRef}
             >
-              <IoMenu size={26} />
+              <IoMenu size={24} />
             </button>
 
-            <ul className="hidden md:flex items-center gap-7" role="menubar">
+            <ul className="hidden md:flex items-center gap-6" role="menubar">
               {navLinks.map((link, i) => {
                 if (link.subLinks) {
                   return (
@@ -260,7 +263,7 @@ function Navbar() {
                       <Link
                         to={link.href || "#"}
                         aria-current={isActive ? "page" : undefined}
-                        className="text-[15px] font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-pm-gold/60 rounded text-white/90 hover:text-pm-gold"
+                        className={"text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-pm-gold/60 rounded px-2 py-1 " + (isActive ? "text-pm-gold" : "text-white/80 hover:text-white")}
                       >
                         {link.name}
                       </Link>
@@ -270,20 +273,20 @@ function Navbar() {
               })}
             </ul>
 
-            <div className="hidden md:flex items-center gap-2">
+            <div className="hidden md:flex items-center gap-1">
               {isAuthenticated && (
                 <Link
                   to="/mis-favoritos"
                   title="Mis Favoritos"
-                  className="p-2 rounded-full transition-colors hover:bg-white/10 text-white icon-outline relative"
+                  className="p-2 rounded-full transition-colors hover:bg-white/10 text-white/80 hover:text-pm-gold relative"
                 >
                   {favoritesCount > 0 ? (
-                    <IoHeart size={22} className="text-red-500" />
+                    <IoHeart size={20} className="text-pm-gold" />
                   ) : (
-                    <IoHeartOutline size={22} />
+                    <IoHeartOutline size={20} />
                   )}
                   {favoritesCount > 0 && (
-                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                    <span className="absolute top-1 right-1 w-4 h-4 bg-pm-gold text-pm-black text-[10px] font-bold rounded-full flex items-center justify-center">
                       {favoritesCount}
                     </span>
                   )}
@@ -293,11 +296,11 @@ function Navbar() {
               <Link
                 to="/cart"
                 title="Carrito"
-                className="p-2 rounded-full transition-colors hover:bg-white/10 text-white icon-outline relative"
+                className="p-2 rounded-full transition-colors hover:bg-white/10 text-white/80 hover:text-pm-gold relative"
               >
-                <IoCartOutline size={22} />
+                <IoCartOutline size={20} />
                 {cartItemCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-pm-gold text-white text-xs font-bold rounded-full flex items-center justify-center">
+                  <span className="absolute top-1 right-1 w-4 h-4 bg-pm-gold text-pm-black text-[10px] font-bold rounded-full flex items-center justify-center">
                     {cartItemCount}
                   </span>
                 )}
@@ -305,33 +308,33 @@ function Navbar() {
 
               <button
                 title="Cambiar idioma"
-                className="p-2 rounded-full transition-colors hover:bg-white/10 text-white icon-outline"
+                className="p-2 rounded-full transition-colors hover:bg-white/10 text-white/80 hover:text-pm-gold"
               >
-                <IoEarth size={20} />
+                <IoEarth size={18} />
               </button>
 
               <button
                 title="Modo Claro/Oscuro"
-                className="p-2 rounded-full transition-colors hover:bg-white/10 text-white icon-outline"
+                className="p-2 rounded-full transition-colors hover:bg-white/10 text-white/80 hover:text-pm-gold"
               >
-                <IoSunnyOutline size={20} />
+                <IoSunnyOutline size={18} />
               </button>
 
               {isAuthenticated ? (
                 <Link
                   to={user?.role === 'admin' ? '/admin' : '/mi-cuenta'}
                   title="Mi Cuenta"
-                  className="p-2 rounded-full transition-colors hover:bg-white/10 text-white icon-outline"
+                  className="p-2 rounded-full transition-colors hover:bg-white/10 text-white/80 hover:text-pm-gold"
                 >
-                  <IoPersonCircleOutline size={22} />
+                  <IoPersonCircleOutline size={20} />
                 </Link>
               ) : (
                 <Link
                   to="/login"
                   title="Login"
-                  className="p-2 rounded-full transition-colors hover:bg-white/10 text-white icon-outline"
+                  className="p-2 rounded-full transition-colors hover:bg-white/10 text-white/80 hover:text-pm-gold"
                 >
-                  <IoPersonCircleOutline size={22} />
+                  <IoPersonCircleOutline size={20} />
                 </Link>
               )}
 
@@ -339,19 +342,19 @@ function Navbar() {
                 <button
                   title="Más opciones"
                   onClick={() => setIsMoreOpen((v) => !v)}
-                  className="p-2 rounded-full transition-colors hover:bg-white/10 text-white icon-outline"
+                  className="p-2 rounded-full transition-colors hover:bg-white/10 text-white/80 hover:text-pm-gold"
                 >
-                  <IoMenu size={22} />
+                  <IoMenu size={20} />
                 </button>
                 {isMoreOpen && (
-                  <div className="absolute right-0 mt-3 w-48 rounded-2xl border border-white/10 bg-white/95 text-pm-black shadow-xl ring-1 ring-black/5 overflow-hidden">
+                  <div className="absolute right-0 mt-3 w-48 rounded-xl border border-white/10 bg-pm-black/95 text-white shadow-xl ring-1 ring-white/5 overflow-hidden backdrop-blur-md z-50">
                     <div className="py-1">
                       {secondaryNavLinks.map((s) => (
                         <Link
                           key={s.name}
                           to={s.href}
                           onClick={() => setIsMoreOpen(false)}
-                          className="block px-4 py-2 text-sm transition-colors hover:bg-black/5 hover:text-pm-gold"
+                          className="block px-4 py-2 text-sm font-medium transition-colors hover:bg-white/5 hover:text-pm-gold"
                         >
                           {s.name}
                         </Link>
@@ -362,90 +365,76 @@ function Navbar() {
               </div>
             </div>
 
-            <Link to="/" className="md:hidden">
-              <img
-                src="/logo-peru-mysterious-blanco.png"
-                alt="Perú Mysterious"
-                className="h-8 w-auto"
-              />
+            <Link to="/" className="md:hidden flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-pm-gold to-yellow-200 flex items-center justify-center text-pm-black font-bold text-xs">PM</div>
             </Link>
           </div>
 
+          {/* Floating Center Logo (Desktop) */}
+          {/* CAMBIO APLICADO AQUÍ: border-pm-gold y shadow dorado más fuerte */}
           <Link
             to="/"
             aria-label="Ir al inicio"
-            className="group absolute left-1/2 top-1 -translate-x-1/2 hidden md:inline-flex items-center justify-center w-25 h-25 rounded-full bg-pm-black border border-blue/10 shadow-[0_12px_40px_-12px_rgba(0,0,0,0.8)] overflow-hidden z-[1]"
+            className="group absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 hidden md:inline-flex items-center justify-center w-[72px] h-[72px] rounded-full bg-pm-black border border-pm-gold shadow-[0_0_25px_rgba(219,164,0,0.6)] overflow-hidden z-[2] hover:scale-105 transition-transform duration-300"
           >
             <span className="pointer-events-none absolute inset-0 rounded-full">
               <span
-                className="absolute inset-0 rounded-full opacity-20 blur-[2px]"
+                className="absolute inset-0 rounded-full opacity-40 blur-[4px]"
                 style={{
-                  background: "conic-gradient(from 90deg, rgba(219,164,0,0.0), rgba(219,164,0,0.6), rgba(219,164,0,0.0))",
+                  background: "conic-gradient(from 90deg, rgba(219,164,0,0.0), rgba(219,164,0,1), rgba(219,164,0,0.0))",
                 }}
               />
             </span>
-            <span className="absolute inset-[10px] rounded-full bg-gradient-to-b from-white/0 to-white/0 backdrop-blur" />
             <img
-              src="/logo-peru-mysterious-blanco.png"
+              src="/images/logo-peru-mysterious-blanco.png" 
               alt="Perú Mysterious"
-              className="relative z-10 object-contain p-3 w-[120px] h-[120px] transition-transform duration-300 group-hover:scale-[1.03]"
+              className="relative z-10 object-contain w-[60%] h-[60%]"
             />
           </Link>
         </div>
       </header>
 
       <aside
-        className={"md:hidden fixed top-0 left-0 z-50 h-full w-[92%] max-w-sm bg-gradient-to-b from-pm-black to-pm-black/95 text-white p-6 transition-transform duration-300 ease-in-out rounded-r-3xl border-r border-white/10 " + (isMenuOpen ? "translate-x-0" : "-translate-x-full")}
+        className={"md:hidden fixed top-0 left-0 z-[60] h-full w-[85%] max-w-sm bg-pm-black text-white p-6 transition-transform duration-300 ease-in-out shadow-2xl " + (isMenuOpen ? "translate-x-0" : "-translate-x-full")}
       >
-        <div className="flex items-center justify-between">
-          <Link to="/" onClick={() => setIsMenuOpen(false)}>
-            <img
-              src="/logo-peru-mysterious-blanco.png"
-              alt="Perú Mysterious"
-              className="h-9 w-auto object-contain"
-            />
+        <div className="flex items-center justify-between pb-6 border-b border-white/10">
+          <Link to="/" onClick={() => setIsMenuOpen(false)} className="font-serif text-xl font-bold text-pm-gold">
+              PERU MYSTERIOUS
           </Link>
           <button
             onClick={() => setIsMenuOpen(false)}
             aria-label="Cerrar menú"
-            className="p-2 rounded-full transition-colors hover:bg-white/10 text-white icon-outline"
+            className="p-2 rounded-full transition-colors hover:bg-white/10 text-white"
           >
             <IoClose size={24} />
           </button>
         </div>
 
         {isAuthenticated && (
-          <div className="mt-6 flex gap-3 pb-4 border-b border-white/10">
+          <div className="mt-6 flex gap-3 pb-6 border-b border-white/10">
             <Link
               to="/mis-favoritos"
               onClick={() => setIsMenuOpen(false)}
-              className="flex-1 flex items-center justify-center gap-2 bg-white/10 rounded-lg px-4 py-3 hover:bg-white/20 transition-colors relative"
+              className="flex-1 flex items-center justify-center gap-2 bg-white/5 border border-white/10 rounded-lg px-4 py-3 hover:bg-pm-gold hover:text-pm-gold-black hover:border-pm-gold transition-all relative"
             >
               <IoHeartOutline size={20} />
-              <span className="text-sm font-semibold">Favoritos</span>
+              <span className="text-sm font-medium">Favoritos</span>
               {favoritesCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-xs font-bold rounded-full flex items-center justify-center">
-                  {favoritesCount}
-                </span>
+                <span className="absolute top-2 right-2 w-2 h-2 bg-pm-gold rounded-full"></span>
               )}
             </Link>
             <Link
               to="/cart"
               onClick={() => setIsMenuOpen(false)}
-              className="flex-1 flex items-center justify-center gap-2 bg-white/10 rounded-lg px-4 py-3 hover:bg-white/20 transition-colors relative"
+              className="flex-1 flex items-center justify-center gap-2 bg-white/5 border border-white/10 rounded-lg px-4 py-3 hover:bg-pm-gold hover:text-pm-gold-black hover:border-pm-gold transition-all relative"
             >
               <IoCartOutline size={20} />
-              <span className="text-sm font-semibold">Carrito</span>
-              {cartItemCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-pm-gold text-xs font-bold rounded-full flex items-center justify-center">
-                  {cartItemCount}
-                </span>
-              )}
+              <span className="text-sm font-medium">Carrito</span>
             </Link>
           </div>
         )}
 
-        <nav className="mt-6">
+        <nav className="mt-6 space-y-1">
           {navLinks.map((item) => (
             <MobileNavItem
               key={item.name}
@@ -455,13 +444,13 @@ function Navbar() {
           ))}
         </nav>
 
-        <div className="mt-4">
+        <div className="mt-8 pt-6 border-t border-white/10">
           {secondaryNavLinks.map((s) => (
             <Link
               key={s.name}
               to={s.href}
               onClick={() => setIsMenuOpen(false)}
-              className="block py-3 text-sm text-white/80 transition-colors hover:text-pm-gold border-b border-white/10"
+              className="block py-3 text-sm text-white/60 transition-colors hover:text-white"
             >
               {s.name}
             </Link>

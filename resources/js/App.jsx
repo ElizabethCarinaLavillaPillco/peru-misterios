@@ -63,6 +63,15 @@ import CreateBlogPage from './pages/admin/blogs/CreateBlogPage';
 import AdminActivitiesListPage from './pages/admin/activities/AdminActivitiesListPage';
 import CreateActivityPage from './pages/admin/activities/CreateActivityPage';
 
+import ScrollToTop from '@/components/ScrollToTop';
+
+
+//destinos
+import DestinationsPage from '@/pages/admin/destinations/DestinationsPage';
+import CreateDestinationPage from '@/pages/admin/destinations/CreateDestinationPage';
+import DestinationDetailPage from '@/pages/DestinationDetailPage';
+
+
 // Protected Route
 const ProtectedRoute = ({ children, requireAdmin = false }) => {
   const { isAuthenticated, user } = useAuthStore();
@@ -105,6 +114,7 @@ function App() {
 
   return (
     <Router>
+    <ScrollToTop />
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
@@ -148,6 +158,11 @@ function App() {
         <Route path="/admin" element={<ProtectedRoute requireAdmin><AdminLayout /></ProtectedRoute>}>
           <Route index element={<AdminDashboard />} />
 
+          {/* Destinos - NUEVO */}
+          <Route path="destinations" element={<DestinationsPage />} />
+          <Route path="destinations/create" element={<CreateDestinationPage />} />
+          <Route path="destinations/edit/:id" element={<CreateDestinationPage />} />
+          
           <Route path="tours" element={<AdminToursListPage />} />
           <Route path="tours/create" element={<CreateTourPage />} />
           <Route path="tours/:id/edit" element={<CreateTourPage />} />

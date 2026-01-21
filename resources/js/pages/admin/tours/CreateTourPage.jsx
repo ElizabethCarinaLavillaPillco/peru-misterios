@@ -19,10 +19,14 @@ export default function CreateTourPage() {
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState([]);
 
+  const [destinations, setDestinations] = useState([]);
+
+
   const [formData, setFormData] = useState({
     name: '',
     slug: '',
     category_id: '',
+    destination_id: '', 
     short_description: '',
     description: '',
     featured_image: '',
@@ -50,10 +54,20 @@ export default function CreateTourPage() {
 
   useEffect(() => {
     loadCategories();
+    loadDestinations();
     if (isEditing) {
       loadTour();
     }
   }, [id]);
+
+  const loadDestinations = async () => {
+    try {
+      const response = await api.get('/admin/destinations');
+      setDestinations(response.data.data || response.data || []);
+    } catch (error) {
+      console.error('Error al cargar destinos:', error);
+    }
+  };
 
   const loadCategories = async () => {
     try {
@@ -78,6 +92,7 @@ export default function CreateTourPage() {
 			name: tour.name || '',
 			slug: tour.slug || '',
 			category_id: tour.category_id || '',
+      destination_id: tour.destination_id || '',
 			short_description: tour.short_description || '',
 			description: tour.description || '',
 			featured_image: tour.featured_image || '',
@@ -176,6 +191,8 @@ export default function CreateTourPage() {
         duration_days: parseInt(formData.duration_days),
         duration_nights: parseInt(formData.duration_nights || 0),
         max_group_size: parseInt(formData.max_group_size),
+        is_featured: formData.is_featured, 
+        is_active: formData.is_active,  
       };
 
       if (isEditing) {
@@ -270,22 +287,27 @@ export default function CreateTourPage() {
                 </select>
               </div>
 
-              {/* Ubicación */}
+              {/* Destino */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Ubicación <span className="text-red-500">*</span>
+                  Destino <span className="text-red-500">*</span>
                 </label>
-                <input
-                  type="text"
-                  name="location"
-                  value={formData.location}
+                <select
+                  name="destination_id"
+                  value={formData.destination_id}
                   onChange={handleChange}
                   required
-                  maxLength={255}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pm-gold focus:border-transparent"
-                  placeholder="Ej: Cusco, Perú"
-                />
+                >
+                  <option value="">Seleccionar destino</option>
+                  {destinations.map((dest) => (
+                    <option key={dest.id} value={dest.id}>
+                      {dest.name}
+                    </option>
+                  ))}
+                </select>
               </div>
+
             </div>
 
             {/* Descripción corta */}

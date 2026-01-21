@@ -1,10 +1,11 @@
-import React from 'react';
-
+// src/components/home/DestinosPopulares.jsx
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import Slider from "react-slick";
-import { IoChevronBack, IoChevronForward } from "react-icons/io5";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
+import Slider from 'react-slick';
+import { IoChevronBack, IoChevronForward } from 'react-icons/io5';
+import api from '@/lib/api';
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
 
 // Flecha siguiente
 const NextArrow = ({ onClick }) => (
@@ -37,41 +38,100 @@ const PrevArrow = ({ onClick }) => (
 );
 
 export default function DestinosPopulares({ background }) {
-  const destinos = [
-    { name: "Cusco", imageUrl: "/images/CuscoCatedral.jpg", href: "/destinos/cusco" },
-    { name: "Huánuco", imageUrl: "/images/LagunaHumantay.jpg", href: "/destinos/huanuco" },
-    { name: "Ica", imageUrl: "/images/Machupicchu4.jpg", href: "/destinos/ica" },
-    { name: "Arequipa", imageUrl: "/images/Waqrapukara.jpg", href: "/destinos/arequipa" },
-    { name: "Lima", imageUrl: "/images/Maras.jpg", href: "/destinos/lima" },
-  ];
+  const [destinations, setDestinations] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadDestinations();
+  }, []);
+
+  const loadDestinations = async () => {
+    try {
+      const response = await api.get('/destinations');
+      setDestinations(response.data.data || []);
+    } catch (error) {
+      console.error('Error al cargar destinos:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const settings = {
     dots: false,
-    infinite: true,
+    infinite: destinations.length > 3,
     speed: 500,
-    slidesToShow: 3,
-    centerMode: true,
-    centerPadding: "0px",
+    slidesToShow: Math.min(3, destinations.length),
+    centerMode: destinations.length > 3,
+    centerPadding: '0px',
     nextArrow: <NextArrow />,
     prevArrow: <PrevArrow />,
     responsive: [
-      { breakpoint: 1024, settings: { slidesToShow: 2 } },
-      { breakpoint: 640, settings: { slidesToShow: 1 } },
+      { 
+        breakpoint: 1024, 
+        settings: { 
+          slidesToShow: Math.min(2, destinations.length),
+          centerMode: destinations.length > 2,
+        } 
+      },
+      { 
+        breakpoint: 640, 
+        settings: { 
+          slidesToShow: 1,
+          centerMode: destinations.length > 1,
+        } 
+      },
     ],
   };
+
+  if (loading) {
+    return (
+      <section className="relative py-20 text-white">
+        <div className="absolute inset-0 -z-10">
+          <div
+            className="h-full w-full bg-cover bg-center"
+            style={{
+              backgroundImage: `url(${background?.src || '/images/Machupicchu.jpg'})`,
+            }}
+          />
+        </div>
+        <div
+          className="absolute inset-0 -z-10"
+          style={{
+            background:
+              'linear-gradient(to top, rgba(0,0,0,.42), rgba(217,166,74,.18), rgba(0,0,0,.15))',
+          }}
+        />
+        <div className="container mx-auto text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pm-gold mx-auto"></div>
+        </div>
+      </section>
+    );
+  }
+
+  if (destinations.length === 0) {
+    return null; // No mostrar la sección si no hay destinos
+  }
 
   return (
     <section className="relative py-20 text-white">
       {/* Fondo dinámico */}
       <div className="absolute inset-0 -z-10">
-        {background?.type === "video" ? (
-          <video className="h-full w-full object-cover" autoPlay loop muted playsInline>
+        {background?.type === 'video' ? (
+          <video
+            className="h-full w-full object-cover"
+            autoPlay
+            loop
+            muted
+            playsInline
+          >
             <source src={background.src} type="video/mp4" />
           </video>
         ) : (
           <div
             className="h-full w-full bg-cover bg-center"
-            style={{ backgroundImage: `url(${background?.src || '/images/Machupicchu.jpg'})` }}
+            style={{
+              backgroundImage: `url(${background?.src || '/images/Machupicchu.jpg'})`,
+            }}
           />
         )}
       </div>
@@ -81,7 +141,7 @@ export default function DestinosPopulares({ background }) {
         className="absolute inset-0 -z-10"
         style={{
           background:
-            "linear-gradient(to top, rgba(0,0,0,.42), rgba(217,166,74,.18), rgba(0,0,0,.15))",
+            'linear-gradient(to top, rgba(0,0,0,.42), rgba(217,166,74,.18), rgba(0,0,0,.15))',
         }}
       />
 
@@ -96,19 +156,26 @@ export default function DestinosPopulares({ background }) {
         </p>
 
         <Slider {...settings} className="destinos-carousel px-2">
-          {destinos.map((d) => (
-            <div key={d.name} className="px-4">
+          {destinations.map((destination) => (
+            <div key={destination.id} className="px-4">
               <Link
-                to={d.href}
+                to={`/destinations/${destination.slug}`}
                 className="group relative mx-auto block h-64 w-64 overflow-hidden rounded-full
                            ring-2 ring-white/30 hover:ring-pm-gold transition-all duration-300
                            shadow-[0_12px_40px_rgba(0,0,0,0.35)] hover:shadow-[0_16px_52px_rgba(217,166,74,0.28)]"
               >
                 {/* Imagen */}
                 <img
-                  src={d.imageUrl}
-                  alt={d.name}
+                  src={
+                    destination.featured_image ||
+                    'https://via.placeholder.com/400x400?text=Sin+Imagen'
+                  }
+                  alt={destination.name}
                   className="w-full h-full object-cover transition-transform duration-500 ease-in-out group-hover:scale-110"
+                  onError={(e) => {
+                    e.target.src =
+                      'https://via.placeholder.com/400x400?text=Sin+Imagen';
+                  }}
                 />
 
                 {/* Overlay: degradado leve + halo radial para texto */}
@@ -120,12 +187,20 @@ export default function DestinosPopulares({ background }) {
                 {/* Contenido */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
                   <h3 className="font-russo-one text-3xl drop-shadow-[0_3px_10px_rgba(0,0,0,0.55)]">
-                    {d.name}
+                    {destination.name}
                   </h3>
-                  <span className="mt-2 text-xs tracking-wide
+                  {destination.tours?.length > 0 && (
+                    <p className="text-xs mt-1 opacity-90">
+                      {destination.tours.length} tour
+                      {destination.tours.length !== 1 ? 's' : ''}
+                    </p>
+                  )}
+                  <span
+                    className="mt-2 text-xs tracking-wide
                                    rounded-full bg-white/15 px-3 py-1
                                    ring-1 ring-white/30 backdrop-blur
-                                   opacity-0 group-hover:opacity-100 transition-opacity">
+                                   opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
                     Ver más
                   </span>
                 </div>
