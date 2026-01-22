@@ -124,6 +124,8 @@ function App() {
 
           <Route path="/destinos" element={<DestinosPage />} />
           <Route path="/destinos/:destino" element={<DestinoToursPage />} />
+          <Route path="destinos/:slug" element={<DestinationDetailPage />} />
+
 
           <Route path="/tours" element={<ToursList />} />
           <Route path="/tours/:id" element={<TourDetail />} />

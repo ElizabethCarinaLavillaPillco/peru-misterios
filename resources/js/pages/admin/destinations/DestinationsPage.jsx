@@ -24,7 +24,7 @@ export default function DestinationsPage() {
   const loadDestinations = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/admin/destinations');
+      const response = await api.get('/admin/destinos');
       setDestinations(response.data.data || []);
     } catch (error) {
       console.error('Error al cargar destinos:', error);
@@ -38,7 +38,7 @@ export default function DestinationsPage() {
     if (!confirm('¿Estás seguro de eliminar este destino?')) return;
 
     try {
-      await api.delete(`/admin/destinations/${id}`);
+      await api.delete(`/admin/destinos/${id}`);
       alert('Destino eliminado exitosamente');
       loadDestinations();
     } catch (error) {
@@ -199,7 +199,7 @@ export default function DestinationsPage() {
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-end gap-2">
                         <Link
-                          to={`/destinations/${destination.slug}`}
+                          to={`/destinos/${destination.slug}`}
                           target="_blank"
                           className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                           title="Ver"

@@ -37,7 +37,7 @@ export default function CreateDestinationPage() {
   const loadDestination = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`/admin/destinations/${id}`);
+      const response = await api.get(`/admin/destinos/${id}`);
       const dest = response.data.data || response.data;
 
       setFormData({
@@ -101,10 +101,10 @@ export default function CreateDestinationPage() {
       };
 
       if (isEditing) {
-        await api.put(`/admin/destinations/${id}`, dataToSend);
+        await api.put(`/admin/destinos/${id}`, dataToSend);
         alert('Destino actualizado exitosamente');
       } else {
-        await api.post('/admin/destinations', dataToSend);
+        await api.post('/admin/destinos', dataToSend);
         alert('Destino creado exitosamente');
       }
 

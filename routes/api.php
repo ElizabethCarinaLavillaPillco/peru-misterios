@@ -16,13 +16,13 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 // Destinos públicos
-Route::get('/destinations', [\App\Http\Controllers\API\DestinationController::class, 'index']);
-Route::get('/destinations/{slug}', [\App\Http\Controllers\API\DestinationController::class, 'show']);
+Route::get('/destinos', [\App\Http\Controllers\API\DestinationController::class, 'index']);
+Route::get('/destinos/{slug}', [\App\Http\Controllers\API\DestinationController::class, 'show']);
 
 // Tours públicos
+Route::get('/tours/featured', [\App\Http\Controllers\API\TourController::class, 'featured']); // DEBE IR PRIMERO
 Route::get('/tours', [\App\Http\Controllers\API\TourController::class, 'index']);
 Route::get('/tours/{slug}', [\App\Http\Controllers\API\TourController::class, 'show']);
-Route::get('/tours/featured', [\App\Http\Controllers\API\TourController::class, 'featured']);
 
 
 // Paquetes públicos
@@ -97,12 +97,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/users/{id}', [UserController::class, 'destroy']);
 
         // Gestión de destinos
-        Route::get('/destinations/stats', [\App\Http\Controllers\API\DestinationController::class, 'stats']);
-        Route::get('/destinations', [\App\Http\Controllers\API\DestinationController::class, 'adminIndex']);
-        Route::get('/destinations/{id}', [\App\Http\Controllers\API\DestinationController::class, 'showById']);
-        Route::post('/destinations', [\App\Http\Controllers\API\DestinationController::class, 'store']);
-        Route::put('/destinations/{id}', [\App\Http\Controllers\API\DestinationController::class, 'update']);
-        Route::delete('/destinations/{id}', [\App\Http\Controllers\API\DestinationController::class, 'destroy']);
+        Route::get('/destinos/stats', [\App\Http\Controllers\API\DestinationController::class, 'stats']);
+        Route::get('/destinos', [\App\Http\Controllers\API\DestinationController::class, 'adminIndex']);
+        Route::get('/destinos/{id}', [\App\Http\Controllers\API\DestinationController::class, 'showById']);
+        Route::post('/destinos', [\App\Http\Controllers\API\DestinationController::class, 'store']);
+        Route::put('/destinos/{id}', [\App\Http\Controllers\API\DestinationController::class, 'update']);
+        Route::delete('/destinos/{id}', [\App\Http\Controllers\API\DestinationController::class, 'destroy']);
 
 
         // Gestión de tours - ORDEN IMPORTANTE: stats primero, luego {id}

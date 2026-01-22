@@ -47,7 +47,7 @@ export default function DestinosPopulares({ background }) {
 
   const loadDestinations = async () => {
     try {
-      const response = await api.get('/destinations');
+      const response = await api.get('/destinos');
       setDestinations(response.data.data || []);
     } catch (error) {
       console.error('Error al cargar destinos:', error);
@@ -159,7 +159,7 @@ export default function DestinosPopulares({ background }) {
           {destinations.map((destination) => (
             <div key={destination.id} className="px-4">
               <Link
-                to={`/destinations/${destination.slug}`}
+                to={`/destinos/${destination.slug}`}
                 className="group relative mx-auto block h-64 w-64 overflow-hidden rounded-full
                            ring-2 ring-white/30 hover:ring-pm-gold transition-all duration-300
                            shadow-[0_12px_40px_rgba(0,0,0,0.35)] hover:shadow-[0_16px_52px_rgba(217,166,74,0.28)]"

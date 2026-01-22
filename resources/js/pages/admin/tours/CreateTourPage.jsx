@@ -62,7 +62,7 @@ export default function CreateTourPage() {
 
   const loadDestinations = async () => {
     try {
-      const response = await api.get('/admin/destinations');
+      const response = await api.get('/admin/destinos');
       setDestinations(response.data.data || response.data || []);
     } catch (error) {
       console.error('Error al cargar destinos:', error);

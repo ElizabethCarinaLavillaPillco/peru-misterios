@@ -22,7 +22,7 @@ export default function DestinationDetailPage() {
   const loadDestination = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`/destinations/${slug}`);
+      const response = await api.get(`/destinos/${slug}`);
       setDestination(response.data.data || response.data);
     } catch (error) {
       console.error('Error al cargar destino:', error);
